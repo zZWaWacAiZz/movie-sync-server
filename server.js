@@ -401,6 +401,6 @@ io.on('connection', (socket) => {
 });
 
 app.use(express.static(__dirname));
-server.listen(3000, () => {
-  console.log('服务器运行在 http://localhost:3002');
+server.listen(8080, () => {
+  console.log('服务器运行在 http://localhost:8080');
 });
