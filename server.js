@@ -2,9 +2,6 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 
-// === 配置变量 ===
-const PORT = 8080; // 新增端口变量，设置为8080
-
 // === 房间数据管理配置 ===
 const ROOM_CONFIG = {
   // 是否保留空房间数据（true=保留，false=清理）
@@ -404,6 +401,6 @@ io.on('connection', (socket) => {
 });
 
 app.use(express.static(__dirname));
-server.listen(PORT, () => {  // 使用PORT变量
-  console.log(`服务器运行在 http://localhost:${PORT}`);  // 使用模板字符串显示端口
+server.listen(3000, () => {
+  console.log('服务器运行在 http://localhost:3002');
 });
