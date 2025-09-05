@@ -3941,7 +3941,7 @@
       
       // 监听资源不一致通知 - 忽略共享新视频时的不一致警告
       socket.on('video_resource_inconsistent', function(data) {
-        console.log(⚠️ 收到资源不一致通知:', data);
+        console.log('⚠️ 收到资源不一致通知:', data);
         
         // 检查是否是共享视频的情况
         const isSharedVideo = window.lastSharedVideo && 
