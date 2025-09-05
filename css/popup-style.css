@@ -1,0 +1,133 @@
+    /* 弹窗容器基础样式 */
+    #exitConfirmModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    /* 浅色模式下弹窗样式 */
+    #exitConfirmModal {
+      background-color: rgba(0,0,0,0.5);
+    }
+    #exitConfirmModal .modal-content {
+      background-color: white;
+      color: #333;
+      border-color: #dee2e6;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    #exitConfirmModal .modal-header {
+      border-bottom-color: #dee2e6;
+    }
+    #exitConfirmModal .modal-header h2 {
+      color: #333;
+    }
+    #exitConfirmModal .modal-body p {
+      color: #333;
+    }
+    #cancelExit {
+      background-color: #6c757d;
+      border-color: #6c757d;
+    }
+    #confirmExit {
+      background-color: #dc3545;
+      border-color: #dc3545;
+    }
+    
+    body.dark-theme #exitConfirmModal {
+      background-color: rgba(0,0,0,0.8) !important;
+    }
+    body.dark-theme #exitConfirmModal .modal-content {
+      background-color: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border-color: #444 !important;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5) !important;
+    }
+    body.dark-theme #exitConfirmModal .modal-header {
+      border-bottom-color: #444 !important;
+    }
+    body.dark-theme #exitConfirmModal .modal-header h2 {
+      color: #e0e0e0 !important;
+    }
+    body.dark-theme #exitConfirmModal .modal-body p {
+      color: #e0e0e0 !important;
+    }
+    body.dark-theme #cancelExit {
+      background-color: #495057 !important;
+      border-color: #495057 !important;
+    }
+    body.dark-theme #confirmExit {
+      background-color: #c0392b !important;
+      border-color: #c0392b !important;
+    }
+    /* 共享确认弹窗样式 */
+    #shareConfirmModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    /* 浅色模式下共享弹窗样式 */
+    #shareConfirmModal {
+      background-color: rgba(0,0,0,0.5);
+    }
+    #shareConfirmModal .modal-content {
+      background-color: white;
+      color: #333;
+      border-color: #dee2e6;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    #shareConfirmModal .modal-header {
+      border-bottom-color: #dee2e6;
+    }
+    #shareConfirmModal .modal-header h2 {
+      color: #333;
+    }
+    #shareConfirmModal .modal-body p {
+      color: #333;
+    }
+    #cancelShare {
+      background-color: #6c757d;
+      border-color: #6c757d;
+    }
+    #confirmShare {
+      background-color: #28a745;
+      border-color: #28a745;
+    }
+    /* 深色模式下共享弹窗样式 */
+    body.dark-theme #shareConfirmModal {
+      background-color: rgba(0,0,0,0.8) !important;
+    }
+    body.dark-theme #shareConfirmModal .modal-content {
+      background-color: #2a2a2a !important;
+      color: #e0e0e0 !important;
+      border-color: #444 !important;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.5) !important;
+    }
+    body.dark-theme #shareConfirmModal .modal-header {
+      border-bottom-color: #444 !important;
+    }
+    body.dark-theme #shareConfirmModal .modal-header h2 {
+      color: #e0e0e0 !important;
+    }
+    body.dark-theme #shareConfirmModal .modal-body p {
+      color: #e0e0e0 !important;
+    }
+    body.dark-theme #cancelShare {
+      background-color: #495057 !important;
+      border-color: #495057 !important;
+    }
+    body.dark-theme #confirmShare {
+      background-color: #218838 !important;
+      border-color: #218838 !important;
+    }
