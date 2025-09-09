@@ -1,9 +1,12 @@
-// 在本地测试时连接到本地服务器
-      const socket = io('http://localhost:3000', {
+// 连接到Railway生产服务器
+      const socket = io('https://movie-sync-server-production-d384.up.railway.app', {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数
-        reconnectionDelay: 1000 // 重连延迟
+        reconnectionDelay: 1000, // 重连延迟
+        transports: ['websocket', 'polling'], // 明确指定传输方式
+        secure: true, // 强制使用HTTPS
+        rejectUnauthorized: false // 允许自签名证书
       });
       
       // 监听连接状态
@@ -165,7 +168,7 @@
         // 计算平均延迟
         const avgRtt = networkQuality.pingHistory.reduce((a, b) => a + b, 0) / networkQuality.pingHistory.length;
         
-        // 计算网络质量评分 (0-1) - 针对本地服务器优化
+        // 计算网络质量评分 (0-1) - 针对远程服务器优化
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         
         if (isLocalhost) {
