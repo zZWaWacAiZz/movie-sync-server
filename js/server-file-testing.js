@@ -1,5 +1,5 @@
-      // 在本地测试时连接到本地服务器
-      const socket = io('movie-sync-server-production-d384.up.railway.app', {
+// 在本地测试时连接到本地服务器
+      const socket = io('http://localhost:3000', {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数
@@ -1819,11 +1819,8 @@
         
         // 视频文件大小无限制（已移除100MB的大小限制）
         
-        // 显示加载状态 - 使用新的加载管理器
-        const loadingId = window.loadingManager.showVideoLoading(
-          document.getElementById('videoContainer'),
-          '正在加载本地视频...'
-        );
+        // 显示加载状态
+        addStatusMessage('正在加载本地视频...');
         
         // 重置isLoading标志，确保从网络视频切换到本地视频时能正常工作
         isLoading = false;
@@ -1863,9 +1860,6 @@
         // 添加更充分的延迟，确保浏览器有足够时间释放旧资源
         setTimeout(() => {
           // 隐藏加载状态
-          if (window.loadingManager) {
-            window.loadingManager.hideAll();
-          }
           
           // 创建新的本地视频URL
           const videoURL = URL.createObjectURL(file);
@@ -2047,19 +2041,26 @@
         // 检查发送者是否有自定义头像
         let customAvatar = null;
         if (sender === username) {
-          // 当前用户，检查本地存储
-          customAvatar = loadAvatarFromLocalStorage();
+          // 当前用户，优先使用内存中的最新头像数据
+          customAvatar = window.currentUserAvatar || loadAvatarFromLocalStorage();
         } else {
-          // 其他用户，尝试从用户列表中查找自定义头像
-          const userItems = document.querySelectorAll('#usersList li');
-          for (let item of userItems) {
-            const usernameElement = item.querySelector('.user-name-text');
-            if (usernameElement && usernameElement.textContent === sender) {
-              const avatarElement = item.querySelector('.user-avatar img');
-              if (avatarElement) {
-                customAvatar = avatarElement.src;
+          // 其他用户，优先使用内存中的头像缓存
+          customAvatar = window.avatarCache && window.avatarCache[sender];
+          if (!customAvatar) {
+            // 如果内存中没有，尝试从用户列表中查找自定义头像
+            const userItems = document.querySelectorAll('#usersList li');
+            for (let item of userItems) {
+              const usernameElement = item.querySelector('.user-name-text');
+              if (usernameElement && usernameElement.textContent === sender) {
+                const avatarElement = item.querySelector('.user-avatar img');
+                if (avatarElement) {
+                  customAvatar = avatarElement.src;
+                  // 缓存到内存中，下次直接使用
+                  if (!window.avatarCache) window.avatarCache = {};
+                  window.avatarCache[sender] = customAvatar;
+                }
+                break;
               }
-              break;
             }
           }
         }
@@ -3238,6 +3239,15 @@
       // 同步头像到所有使用到的地方
       function syncAvatarAcrossAllPlaces(username, avatarDataUrl) {
         console.log(`同步头像到所有地方: ${username}`, avatarDataUrl);
+        
+        // 更新内存缓存中的头像数据
+        if (username === window.username) {
+          window.currentUserAvatar = avatarDataUrl;
+        } else {
+          if (!window.avatarCache) window.avatarCache = {};
+          window.avatarCache[username] = avatarDataUrl;
+        }
+        
         // 更新用户列表中的头像
         updateUserAvatarInList(username, avatarDataUrl);
         
@@ -3527,11 +3537,20 @@
           // 检查是否有自定义头像
           let customAvatar = null;
           if (user.username === username) {
-            // 当前用户，检查本地存储
-            customAvatar = loadAvatarFromLocalStorage();
+            // 当前用户，优先使用内存中的最新头像数据
+            customAvatar = window.currentUserAvatar || loadAvatarFromLocalStorage();
           } else {
-            // 其他用户，检查内存中的头像数据
-            customAvatar = user.customAvatar;
+            // 其他用户，优先使用内存缓存
+            customAvatar = window.avatarCache && window.avatarCache[user.username];
+            if (!customAvatar) {
+              // 如果内存中没有，使用用户数据中的头像
+              customAvatar = user.customAvatar;
+              // 缓存到内存中
+              if (customAvatar) {
+                if (!window.avatarCache) window.avatarCache = {};
+                window.avatarCache[user.username] = customAvatar;
+              }
+            }
           }
           
           if (customAvatar) {
@@ -3690,8 +3709,8 @@
             roomIconButton.style.display = 'flex'; // 始终显示房间图标
           }
           
-          // 启用退出房间按钮（桌面端和移动端）
-          enableExitRoomButtons();
+          // 启用退出房间按钮（桌面端）
+      enableExitRoomButtons();
           
           // 启用准备按钮并重置为未准备状态
           const readyButton = document.getElementById('readyButton');
@@ -4201,9 +4220,7 @@
         
         // 设置在线人数为0
         const userCountEl = document.getElementById('userCount');
-        const userCountMobileEl = document.getElementById('userCountMobile');
         if (userCountEl) userCountEl.textContent = '0';
-        if (userCountMobileEl) userCountMobileEl.textContent = '0';
         
         // 设置用户列表为初始状态
         const usersList = document.getElementById('usersList');

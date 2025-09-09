@@ -1,4 +1,4 @@
-    // 获取DOM元素
+// 获取DOM元素
     const backButton = document.getElementById('backButton');
     const exitRoomButton = document.getElementById('exitRoomButton');
     const exitConfirmModal = document.getElementById('exitConfirmModal');
@@ -117,9 +117,7 @@
       
       // 要求2：清空在线人数显示为0
       const userCountEl = document.getElementById('userCount');
-      const userCountMobileEl = document.getElementById('userCountMobile');
       if (userCountEl) userCountEl.textContent = '0';
-      if (userCountMobileEl) userCountMobileEl.textContent = '0';
       
       // 要求3：清空用户列表到初始状态
       const usersList = document.getElementById('usersList');
@@ -136,7 +134,7 @@
       // 清除全屏聊天设置
       clearFullscreenChatSettings();
       
-      // 禁用退出房间按钮（桌面端和移动端）
+      // 禁用退出房间按钮（桌面端）
       disableExitRoomButtons();
       
       // 禁用准备按钮
@@ -165,14 +163,6 @@
         exitRoomButton.style.cursor = 'not-allowed';
         exitRoomButton.title = '请先加入房间';
       }
-      
-      // 更新移动端退出房间按钮视觉状态
-      const exitRoomButtonMobile = document.getElementById('exitRoomButtonMobile');
-      if (exitRoomButtonMobile) {
-        exitRoomButtonMobile.style.opacity = '0.5';
-        exitRoomButtonMobile.style.cursor = 'not-allowed';
-        exitRoomButtonMobile.title = '请先加入房间';
-      }
     }
     
     // 简化版：启用退出房间按钮（仅用于视觉提示）
@@ -183,14 +173,6 @@
         exitRoomButton.style.opacity = '1';
         exitRoomButton.style.cursor = 'pointer';
         exitRoomButton.title = '退出当前房间';
-      }
-      
-      // 更新移动端退出房间按钮视觉状态
-      const exitRoomButtonMobile = document.getElementById('exitRoomButtonMobile');
-      if (exitRoomButtonMobile) {
-        exitRoomButtonMobile.style.opacity = '1';
-        exitRoomButtonMobile.style.cursor = 'pointer';
-        exitRoomButtonMobile.title = '退出当前房间';
       }
     }
     
@@ -447,28 +429,233 @@
     let hlsLoadTimeout = null;
     
     // 加载网络视频链接
-    function handleNetworkVideoLoading(videoUrl, startTime = 0, shouldPlay = false) {
+    // 网络状态监听 - 断网时自动暂停播放
+    if (!window.networkListenerAdded) {
+      window.addEventListener('online', function() {
+        console.log('网络已恢复');
+        if (window.notificationSystem) {
+          window.notificationSystem.success('网络已恢复，可以继续播放', 3000);
+        }
+      });
+      
+      window.addEventListener('offline', function() {
+        console.log('网络已断开');
+        if (videoPlayer) {
+          videoPlayer.pause();
+        }
+        if (window.notificationSystem) {
+          window.notificationSystem.warning('网络已断开，已自动暂停播放', 5000);
+        }
+      });
+      
+      window.networkListenerAdded = true; // 防止重复添加
+    }
+
+    // 智能缓存系统 - 记住最近成功的链接
+    const VideoCache = {
+      cache: new Map(),
+      maxAge: 3600000, // 1小时有效期
+      
+      set(url, data) {
+        this.cache.set(url, {
+          data,
+          timestamp: Date.now()
+        });
+        console.log('缓存视频链接:', url);
+      },
+      
+      get(url) {
+        const item = this.cache.get(url);
+        if (!item) return null;
+        
+        if (Date.now() - item.timestamp > this.maxAge) {
+          this.cache.delete(url);
+          return null;
+        }
+        
+        console.log('使用缓存的视频链接:', url);
+        return item.data;
+      },
+      
+      has(url) {
+        return this.get(url) !== null;
+      },
+      
+      clear() {
+        this.cache.clear();
+      }
+    };
+    
+    // 暴露到全局
+    window.VideoCache = VideoCache;
+
+    // 智能链接预检测函数
+    // 区域检测工具
+    const RegionDetector = {
+      detect() {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const languages = navigator.languages || [navigator.language];
+        
+        // 简单的区域检测逻辑
+        if (timezone.includes('Asia/Shanghai') || languages.some(l => l.includes('zh'))) {
+          return 'CN';
+        } else if (timezone.includes('America')) {
+          return 'US';
+        } else if (timezone.includes('Europe')) {
+          return 'EU';
+        }
+        return 'UNKNOWN';
+      }
+    };
+
+    function checkLinkValidity(videoUrl) {
+      return new Promise((resolve) => {
+        // 抖音直链跳过检测（走代理）
+        if (isDouyinUrl(videoUrl)) {
+          resolve({valid: true, skip: true});
+          return;
+        }
+        
+        // 检查缓存
+        const cached = window.VideoCache.get(videoUrl);
+        if (cached) {
+          resolve({valid: true, skip: true});
+          return;
+        }
+        
+        const xhr = new XMLHttpRequest();
+        xhr.open('HEAD', videoUrl, true);
+        xhr.timeout = 10000; // 延长到10秒超时，给网络检测更多时间
+        
+        xhr.onload = function() {
+          const status = xhr.status;
+          
+          if (status >= 200 && status < 400) {
+            // 缓存成功的验证
+            window.VideoCache.set(videoUrl, { valid: true });
+            resolve({valid: true, status});
+          } else if (status === 403 || status === 451) {
+            // 区域限制特殊处理
+            const region = RegionDetector.detect();
+            console.warn(`区域限制检测: ${region}, 状态码: ${status}`);
+            resolve({valid: false, status, error: getErrorMessage(status), region});
+          } else if (status === 0) {
+            // CORS问题，降级处理
+            console.warn('检测到CORS限制，降级处理');
+            window.VideoCache.set(videoUrl, { valid: true });
+            resolve({valid: true, skip: true});
+          } else {
+            // 其他错误，根据情况降级
+            console.warn(`状态码 ${status}，降级处理`);
+            window.VideoCache.set(videoUrl, { valid: true });
+            resolve({valid: true, skip: true});
+          }
+        };
+        
+        xhr.onerror = xhr.ontimeout = function() {
+          // 网络错误降级处理
+          console.warn('网络错误，降级处理');
+          window.VideoCache.set(videoUrl, { valid: true });
+          resolve({valid: true, skip: true});
+        };
+        
+        xhr.send();
+      });
+    }
+    
+    function getErrorMessage(status) {
+      const messages = {
+        403: '视频链接已失效（权限不足）',
+        404: '视频文件不存在或已被删除',
+        410: '视频已过期，请重新获取链接',
+        0: '无法连接到视频服务器'
+      };
+      return messages[status] || `链接异常 (${status})`;
+    }
+
+    async function handleNetworkVideoLoading(videoUrl, startTime = 0, shouldPlay = false) {
       console.log('🔍 handleNetworkVideoLoading开始执行');
       console.log('参数:', { videoUrl, startTime, shouldPlay });
       
       // 简单的URL验证
       if (!isValidVideoUrl(videoUrl)) {
         console.error('❌ URL验证失败:', videoUrl);
+        
+        // 完全停止所有加载和检测
+        isLoading = false;
+        if (hls) {
+          hls.destroy();
+          hls = null;
+        }
+        if (hlsLoadTimeout) {
+          clearTimeout(hlsLoadTimeout);
+          hlsLoadTimeout = null;
+        }
+        if (videoPlayer) {
+          videoPlayer.pause();
+          videoPlayer.src = '';
+          videoPlayer.load();
+        }
+        
+        // 显示错误并完全停止
         window.errorHandler.showError('请输入有效的视频链接，支持MP4、M3U8等格式');
         return;
       }
       
       console.log('✅ URL验证通过:', videoUrl);
       
-      // 显示加载状态 - 使用新的加载管理器
-      const loadingId = window.loadingManager.showVideoLoading(
-        document.getElementById('videoContainer'),
-        '正在加载网络视频...'
-      );
-      
       // 显示加载状态
       isLoading = true;
-      addStatusMessage('正在加载网络视频...');
+      addStatusMessage('🔍 正在检测视频链接有效性...');
+      
+      try {
+        // 检查缓存
+        const cached = window.VideoCache.has(videoUrl);
+        if (cached) {
+          addStatusMessage('✅ 使用缓存的验证结果');
+        } else {
+          // 预检测链接有效性
+          const checkResult = await checkLinkValidity(videoUrl);
+          
+          if (!checkResult.valid) {
+            isLoading = false;
+            const errorMsg = checkResult.error;
+            
+            // 区域限制特殊提示
+            if (checkResult.status === 451) {
+              errorMsg = '该视频在您所在地区无法访问';
+            } else if (checkResult.status === 403) {
+              errorMsg = '视频链接已失效或权限不足';
+            }
+            
+            // 友好的错误提示
+            const fullError = `${errorMsg}\n\n💡 建议：\n1. 重新获取视频直链\n2. 检查链接是否完整\n3. 稍后再试`;
+            
+            if (window.notificationSystem) {
+              window.notificationSystem.error(fullError, 8000);
+            } else {
+              if (window.notificationSystem) {
+                window.notificationSystem.error(fullError, 0); // 0表示不自动消失
+            } else {
+                alert(fullError);
+            }
+            }
+            
+            addStatusMessage('❌ ' + errorMsg);
+            return;
+          }
+          
+          // 缓存成功的验证
+          if (!checkResult.skip) {
+            window.VideoCache.set(videoUrl, { valid: true });
+            addStatusMessage('✅ 链接检测通过，开始加载...');
+          }
+        }
+        
+      } catch (error) {
+        console.warn('检测失败，继续尝试加载:', error);
+        addStatusMessage('检测失败，尝试直接加载...');
+      }
       
       // 添加调试日志
       console.log('切换到网络视频:', videoUrl);
@@ -476,17 +663,35 @@
       // 保存当前视频的唯一标识，添加NETWORK_前缀以区分本地和网络视频
       currentVideoId = 'NETWORK_' + videoUrl;
       
-      // 清除之前可能存在的HLS实例和超时计时器
-      if (hls) {
-        hls.destroy();
-        hls = null;
-        console.log('已销毁HLS实例');
+      // 彻底清除所有资源，防止内存泄漏
+      function cleanupVideoResources() {
+        if (hls) {
+          hls.destroy();
+          hls = null;
+          console.log('已销毁HLS实例');
+        }
+        if (hlsLoadTimeout) {
+          clearTimeout(hlsLoadTimeout);
+          hlsLoadTimeout = null;
+          console.log('已清除HLS加载超时计时器');
+        }
+        
+        // 清理事件监听器
+        if (videoPlayer) {
+          videoPlayer.onerror = null;
+          videoPlayer.onloadeddata = null;
+          videoPlayer.onended = null;
+        }
+        
+        // 清理过期的缓存
+        if (window.VideoCache) {
+          window.VideoCache.clear();
+          console.log('已清理视频链接缓存');
+        }
       }
-      if (hlsLoadTimeout) {
-        clearTimeout(hlsLoadTimeout);
-        hlsLoadTimeout = null;
-        console.log('已清除HLS加载超时计时器');
-      }
+      
+      // 执行清理
+      cleanupVideoResources();
       
       // 释放之前创建的本地视频对象URL，确保从本地视频切换到网络视频时也清理资源
       if (previousLocalVideoUrl) {
@@ -530,10 +735,6 @@
           hls.on(Hls.Events.MANIFEST_PARSED, function() {
             addStatusMessage('视频流解析成功，准备播放...');
             isLoading = false;
-            // 隐藏加载状态
-            if (window.loadingManager) {
-              window.loadingManager.hideAll();
-            }
             
             // 设置起始播放位置
             if (startTime > 0) {
@@ -589,10 +790,6 @@
           // 增强的错误处理
           hls.on(Hls.Events.ERROR, function(event, data) {
             isLoading = false;
-            // 隐藏加载状态
-            if (window.loadingManager) {
-              window.loadingManager.hideAll();
-            }
             console.error('HLS错误:', data);
             
             let errorMessage = '视频加载失败';
@@ -631,29 +828,32 @@
                   errorMessage = '无法加载视频流，请稍后再试';
                   break;
               }
-              alert(errorMessage);
-              
-              // 销毁HLS实例
-              if (hls) {
-                hls.destroy();
-                hls = null;
+              // 防止重复弹窗：只显示一次错误通知
+              if (!window.lastErrorMessage || window.lastErrorMessage !== errorMessage) {
+                window.lastErrorMessage = errorMessage;
+                if (window.notificationSystem) {
+                  window.notificationSystem.error(errorMessage, 5000);
+                } else {
+                  alert(errorMessage);
+                }
+                // 5秒后清除错误标记，允许显示新的错误
+                setTimeout(() => { window.lastErrorMessage = null; }, 5000);
               }
+              
+                  // 调用统一的停止函数
+              stopAllVideoLoading();
             }
           });
           
-          // 设置加载超时处理（30秒）
+          // 设置加载超时处理（60秒，给M3U8更多加载时间）
           hlsLoadTimeout = setTimeout(() => {
             if (isLoading && hls) {
               isLoading = false;
-              // 隐藏加载状态
-              if (window.loadingManager) {
-                window.loadingManager.hideAll();
-              }
               window.errorHandler.showError('视频加载超时，请检查网络连接或尝试其他视频链接');
               hls.destroy();
               hls = null;
             }
-          }, 30000);
+          }, 60000);
           
           // 加载m3u8流
           try {
@@ -666,12 +866,44 @@
               clearTimeout(hlsLoadTimeout);
               hlsLoadTimeout = null;
             }
-            alert('无法加载m3u8格式视频，请检查链接是否有效');
+            if (window.notificationSystem) {
+              window.notificationSystem.error('无法加载m3u8格式视频，请检查链接是否有效', 5000);
+            } else {
+              if (window.notificationSystem) {
+                window.notificationSystem.error('无法加载m3u8格式视频，请检查链接是否有效', 5000);
+            } else {
+                alert('无法加载m3u8格式视频，请检查链接是否有效');
+            }
+            }
           }
         } else {
           // 浏览器不支持HLS.js或库未正确加载
           console.error('❌ 浏览器不支持HLS.js或库未加载');
-          alert('您的浏览器不支持直接播放m3u8格式视频，请尝试以下解决方案：\n\n1. 使用Chrome或Firefox浏览器\n2. 检查网络连接\n3. 尝试其他视频链接\n4. 确保链接可直接访问');
+          
+          // 检测浏览器类型并提供针对性建议
+          const userAgent = navigator.userAgent.toLowerCase();
+          let browserWarning = '';
+          
+          if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+            browserWarning = 'Safari浏览器对m3u8支持有限，建议使用Chrome或Edge浏览器';
+          } else if (userAgent.includes('firefox')) {
+            browserWarning = 'Firefox可能需要额外配置，建议使用Chrome或Edge浏览器';
+          } else if (userAgent.includes('edge')) {
+            browserWarning = 'Edge浏览器支持良好，如播放失败请尝试Chrome浏览器';
+          } else {
+            browserWarning = '您的浏览器不支持m3u8格式，建议使用Chrome、Edge或Firefox浏览器';
+          }
+          
+          if (window.notificationSystem) {
+            window.notificationSystem.warning(browserWarning, 8000);
+          } else {
+            const fullMessage = browserWarning + '\n\n其他建议：\n1. 检查网络连接\n2. 尝试其他视频链接\n3. 确保链接可直接访问';
+            if (window.notificationSystem) {
+                window.notificationSystem.error(fullMessage, 0); // 0表示不自动消失
+            } else {
+                alert(fullMessage);
+            }
+          }
           isLoading = false;
           
           // 尝试使用原生方式加载作为备选方案
@@ -689,10 +921,6 @@
         // 添加错误处理和恢复机制
         videoPlayer.onerror = function(error) {
           isLoading = false;
-          // 隐藏加载状态
-          if (window.loadingManager) {
-            window.loadingManager.hideAll();
-          }
           addStatusMessage('视频加载失败，正在尝试恢复...');
           console.error('视频加载错误:', error);
           
@@ -720,27 +948,38 @@
             videoUrl: videoUrl
           });
           
+          // 完全停止所有加载和检测
+          stopAllVideoLoading();
+          
           if (errorCode === error.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED) {
-            alert(`视频格式不支持或链接无效
-
-错误详情：${errorMessages[errorCode]}
-
-解决方案：
-• 检查链接是否可直接在浏览器中播放
-• 尝试使用Chrome或Firefox浏览器
-• 确保使用http/https协议
-• 尝试其他视频链接`);
+            // 防止重复弹窗
+            if (!window.lastVideoError || window.lastVideoError !== 'format_not_supported') {
+              window.lastVideoError = 'format_not_supported';
+              if (window.notificationSystem) {
+                window.notificationSystem.error('视频格式不支持或链接无效，请检查链接是否有效', 5000);
+              } else {
+                if (window.notificationSystem) {
+                window.notificationSystem.error('视频格式不支持或链接无效，请检查链接是否有效', 5000);
+            } else {
+                alert('视频格式不支持或链接无效，请检查链接是否有效');
+            }
+              }
+              setTimeout(() => { window.lastVideoError = null; }, 5000);
+            }
           } else if (errorCode !== error.target.error.MEDIA_ERR_ABORTED) {
             setTimeout(() => {
-              if (isLoading === false) {
-                alert(`视频加载失败
-
-错误详情：${errorMessages[errorCode] || '未知错误'}
-
-请检查：
-• 网络连接是否正常
-• 视频链接是否有效
-• 是否被服务器限制访问`);
+              if (isLoading === false && (!window.lastVideoError || window.lastVideoError !== 'load_failed')) {
+                window.lastVideoError = 'load_failed';
+                if (window.notificationSystem) {
+                  window.notificationSystem.error('视频加载失败，请检查网络连接和视频链接', 5000);
+                } else {
+                  if (window.notificationSystem) {
+                window.notificationSystem.error('视频加载失败，请检查网络连接和视频链接', 5000);
+            } else {
+                alert('视频加载失败，请检查网络连接和视频链接');
+            }
+                }
+                setTimeout(() => { window.lastVideoError = null; }, 5000);
               }
             }, 1000);
           }
@@ -749,10 +988,6 @@
         // 监听加载事件
         videoPlayer.onloadeddata = function() {
           isLoading = false;
-          // 隐藏加载状态
-          if (window.loadingManager) {
-            window.loadingManager.hideAll();
-          }
           
           // 设置起始播放位置
           if (startTime > 0) {
@@ -3184,7 +3419,11 @@
             
             // 检查文件类型是否为图片
             if (!file.type.match('image.*')) {
-              alert('请选择图片文件！');
+              if (window.notificationSystem) {
+            window.notificationSystem.warning('请选择图片文件！', 3000);
+        } else {
+            alert('请选择图片文件！');
+        }
               return;
             }
             
@@ -3321,7 +3560,23 @@
                 avatarEl.classList.add('message-avatar');
                 
                 // 检查用户是否有自定义头像
-                const userAvatar = localStorage.getItem(`avatar_${sender}`);
+                let userAvatar = null;
+                if (sender === window.username) {
+                  // 当前用户，优先使用内存中的最新头像数据
+                  userAvatar = window.currentUserAvatar || localStorage.getItem(`avatar_${sender}`);
+                } else {
+                  // 其他用户，优先使用内存缓存
+                  userAvatar = window.avatarCache && window.avatarCache[sender];
+                  if (!userAvatar) {
+                    userAvatar = localStorage.getItem(`avatar_${sender}`);
+                    // 缓存到内存中
+                    if (userAvatar) {
+                      if (!window.avatarCache) window.avatarCache = {};
+                      window.avatarCache[sender] = userAvatar;
+                    }
+                  }
+                }
+                
                 if (userAvatar) {
                   // 使用自定义头像
                   const avatarImg = document.createElement('img');
@@ -4135,3 +4390,43 @@
 
     // 初始化简化版位置选择
     initEnhancedPositionSelection();
+    
+    // 统一的视频加载停止函数 - 完全停止所有检测和加载
+    function stopAllVideoLoading() {
+      console.log('🛑 完全停止所有视频加载和检测');
+      
+      // 1. 立即停止加载状态
+      isLoading = false;
+      
+      // 2. 销毁HLS实例
+      if (hls) {
+        hls.destroy();
+        hls = null;
+        console.log('HLS实例已销毁');
+      }
+      
+      // 3. 清除所有定时器
+      if (hlsLoadTimeout) {
+        clearTimeout(hlsLoadTimeout);
+        hlsLoadTimeout = null;
+        console.log('HLS加载超时定时器已清除');
+      }
+      
+      // 4. 停止视频元素加载
+      if (videoPlayer) {
+        videoPlayer.pause();
+        videoPlayer.src = '';
+        videoPlayer.load();
+        console.log('视频元素已重置');
+      }
+      
+      // 5. 清除错误标记（允许后续新的尝试）
+      window.lastErrorMessage = null;
+      window.lastVideoError = null;
+      
+      // 6. 移除加载状态指示器
+      const loadingElements = document.querySelectorAll('.loading-overlay');
+      loadingElements.forEach(el => el.remove());
+      
+      console.log('✅ 所有视频加载相关进程已完全停止');
+    }

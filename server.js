@@ -16,6 +16,14 @@ const ROOM_CONFIG = {
 
 const app = express();
 const server = http.createServer(app);
+
+// === 缓存优化配置 ===
+// 为静态文件设置缓存头，提升加载速度
+const cacheOptions = {
+  maxAge: '1h',      // 缓存1小时
+  etag: true,        // 启用ETag验证
+  lastModified: true // 启用最后修改时间验证
+};
 const io = new Server(server, {
   cors: { origin: "*" },
   maxHttpBufferSize: 10e6, // 10MB，增加消息大小限制
@@ -930,7 +938,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// 抖音直链代理路由 - 解决跨域问题
+// 抖音直链代理 - 主节点
 app.use('/proxy/douyin', (req, res) => {
   // 只处理GET请求
   if (req.method !== 'GET') {
@@ -1032,7 +1040,195 @@ app.use('/proxy/douyin', (req, res) => {
   }
 });
 
-app.use(express.static(__dirname));
+// 备用代理节点1
+app.use('/proxy/backup1', (req, res) => {
+  // 只处理GET请求
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: '只支持GET请求' });
+  }
+
+  const targetUrl = req.query.url;
+  
+  if (!targetUrl) {
+    return res.status(400).json({ error: '缺少URL参数' });
+  }
+
+  // 验证是否为抖音域名
+  const douyinDomains = [
+    'douyinvod.com',
+    'douyin.com',
+    'v.douyin.com',
+    'www.douyin.com',
+    'v3-web-prime.douyinvod.com',
+    'v1-cold.douyinvod.com',
+    'v9-cold.douyinvod.com'
+  ];
+  
+  try {
+    const lowerUrl = targetUrl.toLowerCase();
+    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
+    if (!isValidDouyinUrl) {
+      return res.status(403).json({ error: '只允许代理抖音相关域名' });
+    }
+
+    const parsedUrl = url.parse(targetUrl);
+    const options = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || 443,
+      path: parsedUrl.path,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Referer': 'https://www.douyin.com/',
+        'Origin': 'https://www.douyin.com'
+      }
+    };
+
+    const proxyReq = https.request(options, (proxyRes) => {
+      if (res.headersSent) return;
+      try {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        Object.keys(proxyRes.headers).forEach(key => {
+          res.setHeader(key, proxyRes.headers[key]);
+        });
+        if (proxyRes.headers['content-type']) {
+          res.setHeader('Content-Type', proxyRes.headers['content-type']);
+        }
+        res.statusCode = proxyRes.statusCode;
+        proxyRes.pipe(res);
+      } catch (error) {
+        console.error('备用代理1响应处理错误:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: '备用代理1响应处理失败' });
+        }
+      }
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error('备用代理1请求错误:', err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: '备用代理1请求失败', details: err.message });
+      }
+    });
+
+    proxyReq.setTimeout(30000, () => {
+      proxyReq.destroy();
+      if (!res.headersSent) {
+        res.status(504).json({ error: '备用代理1请求超时' });
+      }
+    });
+
+    proxyReq.end();
+
+  } catch (error) {
+    console.error('备用代理1处理错误:', error);
+    res.status(500).json({ error: '备用代理1处理失败', details: error.message });
+  }
+});
+
+// 备用代理节点2
+app.use('/proxy/backup2', (req, res) => {
+  // 只处理GET请求
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: '只支持GET请求' });
+  }
+
+  const targetUrl = req.query.url;
+  
+  if (!targetUrl) {
+    return res.status(400).json({ error: '缺少URL参数' });
+  }
+
+  // 验证是否为抖音域名
+  const douyinDomains = [
+    'douyinvod.com',
+    'douyin.com',
+    'v.douyin.com',
+    'www.douyin.com',
+    'v3-web-prime.douyinvod.com',
+    'v1-cold.douyinvod.com',
+    'v9-cold.douyinvod.com'
+  ];
+  
+  try {
+    const lowerUrl = targetUrl.toLowerCase();
+    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
+    if (!isValidDouyinUrl) {
+      return res.status(403).json({ error: '只允许代理抖音相关域名' });
+    }
+
+    const parsedUrl = url.parse(targetUrl);
+    const options = {
+      hostname: parsedUrl.hostname,
+      port: parsedUrl.port || 443,
+      path: parsedUrl.path,
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Referer': 'https://www.douyin.com/',
+        'Origin': 'https://www.douyin.com'
+      }
+    };
+
+    const proxyReq = https.request(options, (proxyRes) => {
+      if (res.headersSent) return;
+      try {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        Object.keys(proxyRes.headers).forEach(key => {
+          res.setHeader(key, proxyRes.headers[key]);
+        });
+        if (proxyRes.headers['content-type']) {
+          res.setHeader('Content-Type', proxyRes.headers['content-type']);
+        }
+        res.statusCode = proxyRes.statusCode;
+        proxyRes.pipe(res);
+      } catch (error) {
+        console.error('备用代理2响应处理错误:', error);
+        if (!res.headersSent) {
+          res.status(500).json({ error: '备用代理2响应处理失败' });
+        }
+      }
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error('备用代理2请求错误:', err);
+      if (!res.headersSent) {
+        res.status(500).json({ error: '备用代理2请求失败', details: err.message });
+      }
+    });
+
+    proxyReq.setTimeout(30000, () => {
+      proxyReq.destroy();
+      if (!res.headersSent) {
+        res.status(504).json({ error: '备用代理2请求超时' });
+      }
+    });
+
+    proxyReq.end();
+
+  } catch (error) {
+    console.error('备用代理2处理错误:', error);
+    res.status(500).json({ error: '备用代理2处理失败', details: error.message });
+  }
+});
+
+// 使用缓存优化的静态文件服务
+app.use(express.static(__dirname, cacheOptions));
+
+// 为不同类型的文件设置不同的缓存策略
+app.use('/css', express.static(__dirname + '/css', {
+  maxAge: '1h', // CSS文件缓存1小时
+  etag: true
+}));
+
+app.use('/js', express.static(__dirname + '/js', {
+  maxAge: '1h', // JS文件缓存1小时  
+  etag: true
+}));
 server.listen(3000, () => {
   console.log('服务器运行在 http://localhost:3000');
 });

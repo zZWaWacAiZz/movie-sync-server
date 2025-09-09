@@ -177,8 +177,11 @@ class VideoErrorHandler {
      * @param {Object} errorInfo - 错误信息
      */
     showUserError(errorInfo) {
-        // 使用错误处理模块显示错误
-        if (window.errorHandler) {
+        // 使用统一通知系统显示错误
+        if (window.notificationSystem) {
+            window.notificationSystem.error(`视频播放错误: ${errorInfo.message}`, 5000);
+        } else if (window.errorHandler) {
+            // 兼容旧版错误处理模块
             window.errorHandler.showError(errorInfo.message, {
                 type: 'error',
                 duration: 5000,
@@ -188,8 +191,17 @@ class VideoErrorHandler {
                 }
             });
         } else {
-            // 降级处理：使用alert
-            alert(`视频播放错误: ${errorInfo.message}`);
+            // 降级方案：显示在页面元素中
+            const errorDiv = document.getElementById('video-error-message');
+            if (errorDiv) {
+                errorDiv.textContent = errorInfo.message;
+                errorDiv.style.display = 'block';
+                errorDiv.className = 'error-message error';
+                setTimeout(() => errorDiv.style.display = 'none', 5000);
+            } else {
+                // 最终降级：alert
+                alert(`视频播放错误: ${errorInfo.message}`);
+            }
         }
     }
 

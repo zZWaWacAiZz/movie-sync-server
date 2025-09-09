@@ -14,126 +14,144 @@ class NotificationSystem {
         const style = document.createElement('style');
         style.id = 'notification-styles';
         style.textContent = `
-            /* 通知系统容器 */
+            /* 通知系统容器 - 固定在正中间 */
             .notification-container {
                 position: fixed;
-                top: 20px;
+                top: 24px;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 10000;
                 pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
-            /* 基础通知样式 */
+            /* 基础通知样式 - 缩小尺寸，黑色系 */
             .notification {
-                background: white;
+                background: rgba(28, 28, 28, 0.95);
                 border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                padding: 16px 20px;
-                margin-bottom: 10px;
-                min-width: 300px;
-                max-width: 500px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+                padding: 12px 16px;
+                margin-bottom: 8px;
+                min-width: 280px;
+                max-width: 400px;
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                animation: slideIn 0.3s ease-out;
                 pointer-events: auto;
                 position: relative;
                 overflow: hidden;
+                backdrop-filter: blur(12px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                color: #e5e5e5;
             }
 
-            /* 通知类型样式 */
+            /* 通知类型样式 - 黑色系主题 */
             .notification.success {
-                border-left: 4px solid #52c41a;
-                background: #f6ffed;
+                border-left: 3px solid #22c55e;
+                background: rgba(34, 197, 94, 0.1);
             }
 
             .notification.error {
-                border-left: 4px solid #ff4d4f;
-                background: #fff2f0;
+                border-left: 3px solid #ef4444;
+                background: rgba(239, 68, 68, 0.1);
             }
 
             .notification.warning {
-                border-left: 4px solid #faad14;
-                background: #fffbe6;
+                border-left: 3px solid #f59e0b;
+                background: rgba(245, 158, 11, 0.1);
             }
 
             .notification.info {
-                border-left: 4px solid #1890ff;
-                background: #e6f7ff;
+                border-left: 3px solid #6b7280;
+                background: rgba(107, 114, 128, 0.1);
             }
 
-            /* 深色模式适配 */
+            /* 深色模式适配 - 保持黑色系 */
             body.dark-theme .notification {
-                background: #2a2a2a;
-                color: #e0e0e0;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                background: rgba(18, 18, 18, 0.98);
+                color: #f3f4f6;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                backdrop-filter: blur(12px);
             }
 
             body.dark-theme .notification.success {
-                background: #162312;
-                border-left-color: #49aa19;
+                background: rgba(34, 197, 94, 0.08);
+                border-left-color: #22c55e;
             }
 
             body.dark-theme .notification.error {
-                background: #2a1215;
-                border-left-color: #ff7875;
+                background: rgba(239, 68, 68, 0.08);
+                border-left-color: #ef4444;
             }
 
             body.dark-theme .notification.warning {
-                background: #2b2111;
-                border-left-color: #ffc53d;
+                background: rgba(245, 158, 11, 0.08);
+                border-left-color: #f59e0b;
             }
 
             body.dark-theme .notification.info {
-                background: #111d2c;
-                border-left-color: #40a9ff;
+                background: rgba(107, 114, 128, 0.08);
+                border-left-color: #6b7280;
             }
 
-            /* 图标样式 */
+            /* 图标样式 - 缩小尺寸 */
             .notification-icon {
-                font-size: 20px;
+                font-size: 16px;
                 flex-shrink: 0;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                font-weight: 600;
+                position: relative;
             }
 
             .notification.success .notification-icon::before {
                 content: "✓";
-                color: #52c41a;
+                color: #22c55e;
             }
 
             .notification.error .notification-icon::before {
                 content: "✕";
-                color: #ff4d4f;
+                color: #ef4444;
             }
 
             .notification.warning .notification-icon::before {
                 content: "⚠";
-                color: #faad14;
+                color: #f59e0b;
             }
 
             .notification.info .notification-icon::before {
                 content: "ℹ";
-                color: #1890ff;
+                color: #9ca3af;
             }
 
-            /* 内容样式 */
+            /* 内容样式 - 缩小文字 */
             .notification-content {
                 flex: 1;
+                min-width: 0;
             }
 
             .notification-title {
-                font-weight: 600;
-                margin-bottom: 4px;
-                font-size: 16px;
+                font-weight: 500;
+                margin-bottom: 1px;
+                font-size: 13px;
+                line-height: 1.2;
             }
 
             .notification-message {
-                font-size: 14px;
+                font-size: 12px;
                 opacity: 0.85;
-                line-height: 1.4;
+                line-height: 1.3;
+                word-wrap: break-word;
             }
 
-            /* 关闭按钮 */
+            /* 关闭按钮 - 黑色系 */
             .notification-close {
                 position: absolute;
                 top: 8px;
@@ -142,60 +160,100 @@ class NotificationSystem {
                 border: none;
                 font-size: 16px;
                 cursor: pointer;
-                opacity: 0.5;
-                transition: opacity 0.2s;
-                color: inherit;
+                color: #6b7280;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                transition: all 0.2s ease;
             }
 
             .notification-close:hover {
-                opacity: 1;
+                color: #e5e5e5;
+                background: rgba(255, 255, 255, 0.1);
             }
 
-            /* 动画效果 */
-            @keyframes slideIn {
+            /* 动画效果 - 直接在中间出现，无位移 */
+            @keyframes notificationSlideIn {
                 from {
-                    transform: translateX(-50%) translateY(-20px);
+                    transform: scale(0.8);
                     opacity: 0;
                 }
                 to {
-                    transform: translateX(-50%) translateY(0);
+                    transform: scale(1);
                     opacity: 1;
                 }
             }
 
-            @keyframes slideOut {
+            @keyframes notificationSlideOut {
                 from {
-                    transform: translateX(-50%) translateY(0);
+                    transform: scale(1);
                     opacity: 1;
                 }
                 to {
-                    transform: translateX(-50%) translateY(-20px);
+                    transform: scale(0.8);
                     opacity: 0;
                 }
+            }
+
+            .notification {
+                animation: notificationSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             }
 
             .notification.removing {
-                animation: slideOut 0.3s ease-out forwards;
+                animation: notificationSlideOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             }
 
-            /* 底部Toast样式（兼容旧版本） */
-            .bottom-toast {
+            /* 底部Toast样式 - 缩小黑色系 */
+            .notification.toast {
                 position: fixed;
-                bottom: 30px;
+                bottom: 20px;
                 left: 50%;
+                top: auto;
                 transform: translateX(-50%);
-                background: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 12px 24px;
-                border-radius: 24px;
-                font-size: 14px;
-                z-index: 9999;
-                opacity: 0;
-                transition: opacity 0.3s ease;
+                background: rgba(28, 28, 28, 0.95);
+                color: #e5e5e5;
+                padding: 10px 20px;
+                border-radius: 20px;
+                min-width: auto;
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(12px);
+                font-size: 13px;
             }
 
-            .bottom-toast.show {
-                opacity: 1;
+            body.dark-theme .notification.toast {
+                background: rgba(18, 18, 18, 0.98);
+                color: #e5e5e5;
+                box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+            }
+
+            .notification.toast.removing {
+                animation: toastSlideOut 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+
+            @keyframes toastSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px) scale(0.8);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            @keyframes toastSlideOut {
+                from {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: translateY(20px) scale(0.8);
+                }
             }
         `;
         document.head.appendChild(style);
@@ -266,7 +324,7 @@ class NotificationSystem {
             if (notification.parentElement) {
                 notification.parentElement.removeChild(notification);
             }
-        }, 300);
+        }, 250); // 匹配新的动画时长
     }
 
     // 清除所有通知

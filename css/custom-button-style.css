@@ -1,7 +1,6 @@
-   /* === 设备检测变量 - 已简化，仅PC模式 === */
+/* === 设备检测变量 - 仅PC模式 === */
     :root {
-      --is-mobile-device: 0;
-        --force-layout-mode: pc;
+      --force-layout-mode: pc;
     }
     
     /* CSS变量系统 - 响应式布局核心 */
@@ -328,98 +327,7 @@
       overflow: hidden;
     }
     
-    @media (max-width: 800px) and (pointer: coarse) {
-      .video-chat-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr;
-        grid-template-areas: 
-          "video"
-          "controls"
-          "chat";
-        gap: 0;
-        min-height: 0;
-      }
-      
-      .video-section {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      
-      .video-container {
-        margin: 0;
-        padding: 0;
-        border-radius: 0;
-      }
-      
-      #videoPlayer {
-        border-radius: 0;
-        margin: 0;
-        padding: 0;
-      }
-      
-      .chat-section {
-        width: 100%;
-        max-width: 100%;
-        min-height: 0;
-        max-height: none;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 0;
-      }
-      
-      .button-section {
-        display: block !important;
-        margin: var(--gap-medium) 0;
-      }
-      
-      .video-controls-container {
-        display: none !important;
-      }
-      
-      .chat-container {
-        min-height: 200px;
-        max-height: none;
-        flex: 1;
-      }
-      
-      .user-list-container {
-        display: none;
-      }
-      
-      .main-container {
-        padding: 0 !important;
-        height: 100vh !important;
-      }
-      
-      .video-chat-container {
-        height: 100vh !important;
-      }
-      
-      .network-toggle-btn,
-      .room-icon-button,
-      #networkToggleBtn,
-      #roomIconButton {
-        display: none !important;
-        visibility: hidden !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        position: absolute !important;
-        left: -9999px !important;
-        top: -9999px !important;
-      }
-      
-      .network-status {
-        position: fixed !important;
-        right: 10px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        z-index: 1500 !important;
-        min-width: 200px;
-        max-width: 250px;
-      }
-    }
+    /* 移动端媒体查询已完全移除 - 仅保留PC端样式 */
     
     /* 视频底部横条容器 */
     #videoBottomBar {
@@ -946,8 +854,7 @@
     }
     
     /* 准备按钮样式 */
-    #readyButton,
-    #readyButtonMobile {
+    #readyButton {
       position: relative;
       padding: 8px 20px;
       background-color: #e74c3c;
@@ -1125,19 +1032,7 @@
     }
     
     /* 小屏幕下网络状态面板显示在聊天窗口右边 */
-    @media (max-width: 800px) {
-      .network-status {
-        position: fixed;
-        right: 10px;
-        top: 50%;
-        left: auto;
-        bottom: auto;
-        transform: translateY(-50%);
-        z-index: 1500;
-        min-width: 200px;
-        max-width: 250px;
-      }
-    }
+    /* 移动端媒体查询已完全移除 - 仅保留PC端样式 */
     
     .network-status.hidden {
       opacity: 0;
@@ -1516,23 +1411,7 @@
       background-color: #2980b9;
     }
     
-@media (max-width: 800px) {
-    .user-name {
-        font-size: 10px;
-    }
-    .user-name-text {
-        min-width: 2.2em;
-    }
-}
-
-@media (max-width: 600px) {
-    .user-name {
-        font-size: 9px;
-    }
-    .user-name-text {
-        min-width: 2.2em;
-    }
-}
+/* 移动端媒体查询已完全移除 - 仅保留PC端样式 */
     
     /* 右键菜单样式 */
     .context-menu {
