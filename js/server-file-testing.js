@@ -6,7 +6,9 @@
         reconnectionDelay: 1000, // 重连延迟
         transports: ['websocket', 'polling'], // 明确指定传输方式
         secure: true, // 强制使用HTTPS
-        rejectUnauthorized: false // 允许自签名证书
+        rejectUnauthorized: false, // 允许自签名证书
+        path: '/socket.io/', // 明确指定Socket.IO路径
+        forceNew: true // 强制创建新连接
       });
       
       // 监听连接状态
