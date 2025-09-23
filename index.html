@@ -6,10 +6,15 @@
 <script src="js/pc.js"></script>
   <!-- 全局下拉菜单管理 -->
   <script src="js/drop-menu.js"></script>
+  <!-- 全局控制台输出控制 -->
+  <script src="js/disable-console.js"></script>
   <!-- 引入Font Awesome图标库 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- 引入自定义按钮样式 -->
   <link rel="stylesheet" href="css/custom-button-style.css">
+  <!-- 引入移动端适配样式（仅在移动设备生效） -->
+  <link rel="stylesheet" href="css/mobile/mobile-responsive.css">
+
 
     <script src="js/extra/videoErrorHandler.js"></script>
     <script src="js/special-notice.js"></script>
@@ -140,7 +145,12 @@
   </button>
   <!-- 网络状态显示器 -->
   <div id="networkStatus" class="network-status hidden">
-    <div class="network-status-header">🌐 网络状态</div>
+    <div class="network-status-header">
+      🌐 网络状态
+      <button id="closeNetworkStatus" class="close-network-status-btn" title="关闭">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
     <div class="network-status-item">
       <span>📶 连接质量:</span>
       <span id="networkQuality" class="network-quality-excellent">优秀</span>
@@ -169,6 +179,29 @@
                 <!-- 视频源将由JavaScript动态加载 -->
                 您的浏览器不支持HTML5视频播放
             </video>
+            
+            <!-- 在线人数和房间名字显示 - 移动到视频播放器右上角 -->
+            <div class="video-user-count" style="position: absolute; top: 10px; right: 10px; z-index: 100;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- 房间名字按钮 -->
+                    <div class="room-name-box video-room-name">
+                        <span class="room-name"><i class="fas fa-home"></i> <span id="currentRoomName"></span></span>
+                    </div>
+                    <!-- 在线人数 -->
+                    <div class="user-count-box">
+                        <span id="userCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 聊天功能按钮 - 移动到视频播放器右边中间位置 -->
+            <div class="video-chat-button-right" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
+                <div class="chat-function-box video-chat-function-right">
+                    <button id="chatFunctionButton" class="chat-function-button">
+                        <i class="fas fa-comment-dots"></i>
+                    </button>
+                </div>
+            </div>
         </div>
         <!-- 视频底部横条容器 -->
         <div id="videoBottomBar">
@@ -199,20 +232,13 @@
                 </button>
                 <span class="custom-tooltip">切换视频浏览器全屏模式（占满整个屏幕）</span>
               </div>
-              <!-- 第4个：人数显示按钮 -->
-              <div class="tooltip-wrapper">
-                <div class="user-count-box">
-                  <span id="userCount">0</span>
-                </div>
-                <span class="custom-tooltip">当前在线人数</span>
-              </div>
-              <!-- 第5个：房间名字按钮 -->
-              <div class="tooltip-wrapper">
+              <!-- 第4个：房间名字按钮 - 已移动到右上角 -->
+              <!-- <div class="tooltip-wrapper">
                 <div class="room-name-box">
                   <span class="room-name"><i class="fas fa-home"></i> <span id="currentRoomName"></span></span>
                 </div>
                 <span class="custom-tooltip">当前房间名称</span>
-              </div>
+              </div> -->
               <!-- 第6个：退出房间按钮 -->
               <div class="tooltip-wrapper">
                 <button id="exitRoomButton" class="control-button">
@@ -221,14 +247,53 @@
                 </button>
                 <span class="custom-tooltip">退出当前房间</span>
               </div>
-              <!-- 第7个（最左）：返回按钮 -->
+              <!-- 第5个：小房子按钮 -->
               <div class="tooltip-wrapper">
-                <button id="backButton" class="control-button">
-                  <i class="fas fa-arrow-left"></i>
-                  <span>返回</span>
+                <button id="homeButton" class="control-button">
+                  <i class="fas fa-home"></i>
                 </button>
-                <span class="custom-tooltip">返回上一页</span>
+                <span class="custom-tooltip">首页</span>
               </div>
+              <!-- 第7个：功能菜单按钮 -->
+              <div class="tooltip-wrapper">
+                <button id="featureMenuButton" class="control-button">
+                  <i class="fas fa-bars"></i>
+                  <span>功能菜单</span>
+                </button>
+                <span class="custom-tooltip">展开功能菜单</span>
+              </div>
+              <!-- 功能菜单展开的按钮容器 -->
+              <div id="featureMenuContainer" class="feature-menu-container" style="display: none;">
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="1">
+                    <i class="fas fa-cog"></i>
+                    <span>视频选择</span>
+                  </button>
+                  <span class="custom-tooltip">视频选择</span>
+                </div>
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="2">
+                    <i class="fas fa-star"></i>
+                    <span>用户列表</span>
+                  </button>
+                  <span class="custom-tooltip">用户列表</span>
+                </div>
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="3">
+                    <i class="fas fa-heart"></i>
+                    <span>网络检测</span>
+                  </button>
+                  <span class="custom-tooltip">网络检测</span>
+                </div>
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="4">
+                    <i class="fas fa-bell"></i>
+                    <span>主题切换</span>
+                  </button>
+                  <span class="custom-tooltip">主题切换</span>
+                </div>
+              </div>
+
           </div>
           <!-- 左侧按钮容器和输入网址容器 -->
         <div style="display: flex; gap: 5px; align-items: center; width: 100%; justify-content: flex-end; margin-top: 5px;">
@@ -281,12 +346,12 @@
               <!-- 表情和聊天设置按钮 -->
               <div class="chat-tools">
                 <button id="emojiButton" class="chat-tool-button" title="选择表情"><i class="far fa-smile"></i></button>
-                <!-- 添加新的A按钮 -->
-                <button id="aButton" class="chat-tool-button a-button" title="聊天设置"><span style="font-weight: bold; font-size: 18px;">A</span></button>
-                <!-- 添加语音通话按钮 -->
-                <button id="voiceCallButton" class="chat-tool-button" title="语音通话"><i class="fas fa-phone"></i></button>
                 <!-- 添加工具按钮 -->
                 <button id="toolsButton" class="chat-tool-button" title="工具"><i class="fas fa-tools"></i></button>
+                <!-- 添加语音通话按钮 -->
+                <button id="voiceCallButton" class="chat-tool-button" title="语音通话"><i class="fas fa-phone"></i></button>
+                <!-- 添加新的A按钮 -->
+                <button id="aButton" class="chat-tool-button a-button" title="聊天设置"><span style="font-weight: bold; font-size: 18px;">A</span></button>
                 <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
               </div>
               <!-- A按钮的小弹窗 -->
@@ -527,7 +592,63 @@
   </div>
   <script src="/socket.io/socket.io.js"></script>
   <!-- 引入HLS库，用于支持m3u8格式视频 -->
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+  <script>
+    // HLS.js CDN 智能切换加载
+    (function() {
+      // CDN列表，按优先级排序
+      const cdnList = [
+        // 主要CDN：unpkg (npm官方，最稳定)
+        'https://unpkg.com/hls.js@1.4.12/dist/hls.min.js',
+        // 备用CDN1：cdnjs (Cloudflare全球CDN)
+        'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js',
+        // 备用CDN2：百度静态资源库 (国内访问快)
+        'https://code.bdstatic.com/npm/hls.js@1.4.12/dist/hls.min.js',
+        // 备用CDN3：又拍云CDN
+        'https://cdn.bootcdn.net/ajax/libs/hls.js/1.4.12/hls.min.js'
+      ];
+      
+      let currentIndex = 0;
+      
+      function loadScript(url, callback, onError) {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = url;
+        
+        script.onload = function() {
+          console.log('✅ HLS.js 加载成功：' + url);
+          if (callback) callback();
+        };
+        
+        script.onerror = function() {
+          console.warn('❌ HLS.js 加载失败：' + url);
+          if (onError) onError();
+        };
+        
+        document.head.appendChild(script);
+      }
+      
+      function tryNextCDN() {
+        if (currentIndex < cdnList.length) {
+          const currentUrl = cdnList[currentIndex];
+          console.log('🔄 尝试加载HLS.js：' + currentUrl);
+          
+          loadScript(currentUrl, null, function() {
+            currentIndex++;
+            if (currentIndex < cdnList.length) {
+              console.log('🔄 切换到备用CDN #' + currentIndex);
+              tryNextCDN();
+            } else {
+              console.error('❌ 所有HLS.js CDN都加载失败，M3U8视频播放功能将不可用');
+            }
+          });
+        }
+      }
+      
+      // 开始加载
+      tryNextCDN();
+    })();
+  </script>
            <!--   在本地测试时连接到本地服务器 -->
              <script src="js/server-file-testing.js"></script>
 <!-- 退出房间确认弹窗 -->
@@ -565,5 +686,15 @@
   <!-- 处理点击事件的JavaScript代码 -->
 <script src="js/handle-click-event.js"></script>
 <script src="js/extra/notification-system.js"></script>
+
+  <!-- 功能菜单交互逻辑 -->
+  <script src="js/feature-menu.js"></script>
+  
+  <!-- 移动端适配检测和初始化 -->
+  <script src="js/mobile/mobile-adapter.js"></script>
+  <!-- 智能UI控制 - PC模式视频播放器按钮和显示人数按钮交互效果 -->
+  <script src="js/smart-ui-controls.js"></script>
+  <!-- 移动端全屏控制 - 移动端全屏模式下类似HTML5视频控制条的智能隐藏功能 -->
+  <script src="js/mobile-fullscreen-controls.js"></script>
   </body>
 </html>

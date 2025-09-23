@@ -11,15 +11,27 @@
         resources: [],
         
         init: function() {
-            this.element = document.getElementById('preloader');
-            this.progressBar = document.getElementById('progressBar');
-            this.progressText = document.getElementById('progressText');
-            
-            if (!this.element) return;
-            
-            // 开始真实的资源加载检测
-            this.startRealLoading();
-        },
+        this.element = document.getElementById('preloader');
+        this.progressBar = document.getElementById('progressBar');
+        this.progressText = document.getElementById('progressText');
+        
+        if (!this.element) return;
+        
+        // 在移动端确保预加载页面可见
+        this.ensureMobileVisibility();
+        
+        // 开始真实的资源加载检测
+        this.startRealLoading();
+    },
+    
+    ensureMobileVisibility: function() {
+        // 移动端兼容：强制设置可见性
+        if (this.element) {
+            this.element.style.visibility = 'visible';
+            this.element.style.display = 'block';
+            this.element.style.opacity = '1';
+        }
+    },
         
         startRealLoading: function() {
             this.updateProgress(0, '正在检测资源...');

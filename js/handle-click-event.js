@@ -1,54 +1,136 @@
 // 获取DOM元素
-    const backButton = document.getElementById('backButton');
     const exitRoomButton = document.getElementById('exitRoomButton');
     const exitConfirmModal = document.getElementById('exitConfirmModal');
     const cancelExit = document.getElementById('cancelExit');
     const confirmExit = document.getElementById('confirmExit');
     
-    // 返回上一页按钮点击事件 - 增加画中画功能
-    backButton.addEventListener('click', function() {
-      const videoElement = document.getElementById('videoPlayer');
+    // 显示退出确认弹窗的函数
+    function showExitConfirmModal() {
+      // 创建确认弹窗
+      const modal = document.createElement('div');
+      modal.id = 'exitPageConfirmModal';
+      modal.className = 'modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>确认离开</h3>
+            <button class="close-button" onclick="document.getElementById('exitPageConfirmModal').remove()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <p>您正在离开本页，是否要离开？</p>
+          </div>
+          <div class="modal-footer">
+            <button id="confirmExitPage" class="btn btn-primary">确认</button>
+            <button id="cancelExitPage" class="btn btn-secondary">取消</button>
+          </div>
+        </div>
+      `;
       
-      // 检查是否支持画中画功能
-      if (videoElement && document.pictureInPictureEnabled && !videoElement.disablePictureInPicture) {
-        // 如果当前不在画中画模式，则开启画中画
-        if (document.pictureInPictureElement !== videoElement) {
-          videoElement.requestPictureInPicture().then(() => {
-            console.log('画中画模式已开启');
-            // 画中画开启成功后才返回上一页
-            if (window.history.length > 1) {
-              window.history.back(); // 返回上一页
-            } else {
-              window.location.href = 'https://www.baidu.com'; // 如果没有历史记录则跳转到百度
-            }
-          }).catch(error => {
-            console.error('画中画开启失败:', error);
-            // 如果画中画失败，提示用户并直接返回
-            addStatusMessage('画中画功能不可用，直接返回上一页');
-            if (window.history.length > 1) {
-              window.history.back();
-            } else {
-              window.location.href = 'https://www.baidu.com';
-            }
-          });
-        } else {
-          // 如果已经在画中画模式，直接返回上一页
-          if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            window.location.href = 'https://www.baidu.com';
-          }
-        }
-      } else {
-        // 如果不支持画中画或没有视频元素，直接返回上一页
-        addStatusMessage('浏览器不支持画中画功能，直接返回上一页');
+      // 添加样式
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      `;
+      
+      modal.querySelector('.modal-content').style.cssText = `
+        background-color: var(--bg-color);
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      `;
+      
+      modal.querySelector('.modal-header').style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      `;
+      
+      modal.querySelector('.modal-body').style.cssText = `
+        margin-bottom: 20px;
+      `;
+      
+      modal.querySelector('.modal-footer').style.cssText = `
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      `;
+      
+      // 添加按钮样式
+      modal.querySelectorAll('.btn').forEach(btn => {
+        btn.style.cssText = `
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.3s ease;
+        `;
+      });
+      
+      modal.querySelector('.btn-primary').style.cssText += `
+        background-color: var(--primary-color, #007bff);
+        color: white;
+      `;
+      
+      modal.querySelector('.btn-secondary').style.cssText += `
+        background-color: var(--secondary-color, #6c757d);
+        color: white;
+      `;
+      
+      // 添加按钮悬停效果
+      modal.querySelector('.btn-primary').addEventListener('mouseenter', function() {
+        this.style.backgroundColor = '#0056b3';
+      });
+      
+      modal.querySelector('.btn-primary').addEventListener('mouseleave', function() {
+        this.style.backgroundColor = 'var(--primary-color, #007bff)';
+      });
+      
+      modal.querySelector('.btn-secondary').addEventListener('mouseenter', function() {
+        this.style.backgroundColor = '#545b62';
+      });
+      
+      modal.querySelector('.btn-secondary').addEventListener('mouseleave', function() {
+        this.style.backgroundColor = 'var(--secondary-color, #6c757d)';
+      });
+      
+      // 添加到页面
+      document.body.appendChild(modal);
+      
+      // 绑定确认按钮事件
+      document.getElementById('confirmExitPage').addEventListener('click', function() {
+        modal.remove();
+        // 执行返回操作
         if (window.history.length > 1) {
           window.history.back();
         } else {
           window.location.href = 'https://www.baidu.com';
         }
-      }
-    });
+      });
+      
+      // 绑定取消按钮事件
+      document.getElementById('cancelExitPage').addEventListener('click', function() {
+        modal.remove();
+      });
+      
+      // 点击背景关闭弹窗
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.remove();
+        }
+      });
+    }
     
     // 点击退出房间按钮，只有在已加入房间时才显示确认弹窗
     exitRoomButton.addEventListener('click', function() {
@@ -509,9 +591,11 @@
     };
 
     function checkLinkValidity(videoUrl) {
-      return new Promise((resolve) => {
-        // 抖音直链跳过检测（走代理）
-        if (isDouyinUrl(videoUrl)) {
+    return new Promise((resolve) => {
+      // 抖音直链跳过检测（走代理）
+      if (isDouyinUrl(videoUrl)) {
+
+
           resolve({valid: true, skip: true});
           return;
         }
@@ -784,7 +868,7 @@
           });
           
           hls.on(Hls.Events.FRAG_LOADED, function(data) {
-            console.log('片段已加载，持续时间:', data.frag.duration);
+            console.log('片段已加载，持续时间:', data.frag?.duration || '未知');
           });
           
           // 增强的错误处理
@@ -811,12 +895,7 @@
               switch(data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
                   errorMessage = '网络错误，无法连接到视频服务器，请检查网络连接';
-                  // 尝试重新加载
-                  setTimeout(() => {
-                    if (hls) {
-                      hls.startLoad();
-                    }
-                  }, 2000);
+                  // 网络错误不再自动重试，避免无限循环
                   break;
                 case Hls.ErrorTypes.MEDIA_ERROR:
                   errorMessage = '媒体解码错误，可能不支持此视频格式或视频文件已损坏';
@@ -918,20 +997,10 @@
         
         videoPlayer.src = videoUrlWithTimestamp;
         
-        // 添加错误处理和恢复机制
+        // 添加错误处理机制 - 移除自动重试，避免无限循环
         videoPlayer.onerror = function(error) {
           isLoading = false;
-          addStatusMessage('视频加载失败，正在尝试恢复...');
           console.error('视频加载错误:', error);
-          
-          // 尝试恢复策略：使用新的时间戳重新加载
-          setTimeout(() => {
-            console.log('尝试恢复网络视频加载');
-            isLoading = true;
-            const recoveryUrl = videoUrl + (videoUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-            videoPlayer.src = recoveryUrl;
-            videoPlayer.load();
-          }, 500);
           
           // 检查具体错误类型
           const errorCode = error.target.error.code;
@@ -951,37 +1020,40 @@
           // 完全停止所有加载和检测
           stopAllVideoLoading();
           
+          // 根据错误类型提供相应的提示
           if (errorCode === error.target.error.MEDIA_ERR_SRC_NOT_SUPPORTED) {
-            // 防止重复弹窗
+            // 格式不支持错误 - 直接停止，不重试
             if (!window.lastVideoError || window.lastVideoError !== 'format_not_supported') {
               window.lastVideoError = 'format_not_supported';
               if (window.notificationSystem) {
                 window.notificationSystem.error('视频格式不支持或链接无效，请检查链接是否有效', 5000);
               } else {
-                if (window.notificationSystem) {
-                window.notificationSystem.error('视频格式不支持或链接无效，请检查链接是否有效', 5000);
-            } else {
                 alert('视频格式不支持或链接无效，请检查链接是否有效');
+              }
+              setTimeout(() => { window.lastVideoError = null; }, 5000);
             }
+          } else if (errorCode === error.target.error.MEDIA_ERR_NETWORK) {
+            // 网络错误 - 提示用户检查网络，不重试
+            if (!window.lastVideoError || window.lastVideoError !== 'network_error') {
+              window.lastVideoError = 'network_error';
+              if (window.notificationSystem) {
+                window.notificationSystem.error('网络连接失败，请检查网络连接后重试', 5000);
+              } else {
+                alert('网络连接失败，请检查网络连接后重试');
               }
               setTimeout(() => { window.lastVideoError = null; }, 5000);
             }
           } else if (errorCode !== error.target.error.MEDIA_ERR_ABORTED) {
-            setTimeout(() => {
-              if (isLoading === false && (!window.lastVideoError || window.lastVideoError !== 'load_failed')) {
-                window.lastVideoError = 'load_failed';
-                if (window.notificationSystem) {
-                  window.notificationSystem.error('视频加载失败，请检查网络连接和视频链接', 5000);
-                } else {
-                  if (window.notificationSystem) {
+            // 其他错误 - 直接停止，不重试
+            if (!window.lastVideoError || window.lastVideoError !== 'load_failed') {
+              window.lastVideoError = 'load_failed';
+              if (window.notificationSystem) {
                 window.notificationSystem.error('视频加载失败，请检查网络连接和视频链接', 5000);
-            } else {
+              } else {
                 alert('视频加载失败，请检查网络连接和视频链接');
-            }
-                }
-                setTimeout(() => { window.lastVideoError = null; }, 5000);
               }
-            }, 1000);
+              setTimeout(() => { window.lastVideoError = null; }, 5000);
+            }
           }
         };
         
@@ -1122,19 +1194,17 @@
       // 抖音直链的特殊处理 - 使用代理后不需要crossOrigin
       // videoPlayer.crossOrigin = 'anonymous';
       
-      // 错误处理
+      // 错误处理 - 抖音直链
       videoPlayer.onerror = function(error) {
         isLoading = false;
         console.error('抖音视频加载错误:', error);
         
-        // 抖音直链可能有时效性，提供更友好的错误提示
-        setTimeout(() => {
-          if (videoPlayer.error && videoPlayer.error.code === 4) { // MEDIA_ERR_SRC_NOT_SUPPORTED
-            window.errorHandler.showError('抖音直链已失效或无法访问，请获取新的直链地址');
-          } else {
-            window.errorHandler.showError('抖音视频加载失败，请检查链接是否有效');
-          }
-        }, 100);
+        // 抖音直链可能有时效性，提供友好的错误提示（移除setTimeout避免延迟）
+        if (videoPlayer.error && videoPlayer.error.code === 4) { // MEDIA_ERR_SRC_NOT_SUPPORTED
+          window.errorHandler.showError('抖音直链已失效或无法访问，请获取新的直链地址');
+        } else {
+          window.errorHandler.showError('抖音视频加载失败，请检查链接是否有效');
+        }
       };
       
       // 监听加载成功
@@ -1322,7 +1392,210 @@
       }
       
       // 为页面全屏按钮添加点击事件
-      fullscreenButton.addEventListener('click', togglePageFullscreen);
+      fullscreenButton.addEventListener('click', function() {
+        // 检查是否为移动端竖屏模式
+        const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+        
+        if (isMobilePortrait) {
+          // 移动端竖屏模式：启用智能旋转全屏
+          enableSmartRotateFullscreen();
+        } else {
+          // 其他模式：使用普通页面全屏
+          togglePageFullscreen();
+        }
+      });
+      
+      // 智能旋转全屏功能（移动端竖屏专用）
+      function enableSmartRotateFullscreen() {
+        console.log('启用智能旋转全屏模式（竖屏→横屏）');
+        
+        const videoContainer = document.getElementById('videoContainer');
+        const isRotateFullscreen = videoContainer.classList.contains('rotate-fullscreen');
+        
+        if (!isRotateFullscreen) {
+          // 进入旋转全屏模式
+          
+          // 创建旋转全屏样式（如果不存在）
+          if (!document.getElementById('rotateFullscreenStyles')) {
+            const style = document.createElement('style');
+            style.id = 'rotateFullscreenStyles';
+            style.textContent = `
+              .rotate-fullscreen {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                width: 100vh !important;
+                height: 100vw !important;
+                transform: translate(-50%, -50%) rotate(90deg) !important;
+                transform-origin: center center !important;
+                z-index: 9999 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+              }
+              
+              .rotate-fullscreen video {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+                border-radius: 0 !important;
+              }
+              
+              .rotate-fullscreen #videoBottomBar {
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                transform: rotate(-90deg) !important;
+                transform-origin: left bottom !important;
+                z-index: 10000 !important;
+              }
+              
+              body.rotate-fullscreen-active {
+                overflow: hidden !important;
+                position: fixed !important;
+                width: 100% !important;
+                height: 100% !important;
+              }
+            `;
+            document.head.appendChild(style);
+          }
+          
+          // 添加旋转全屏类
+          videoContainer.classList.add('rotate-fullscreen');
+          document.body.classList.add('rotate-fullscreen-active');
+          
+          // 更改按钮状态
+          fullscreenButton.innerHTML = '<i class="fas fa-compress"></i><span>退出全屏</span>';
+          fullscreenButton.classList.add('rotate-fullscreen-active');
+          
+          // 创建退出按钮
+          createRotateFullscreenExitButton();
+          
+          // 在旋转全屏模式下创建聊天输入框
+          createFullscreenChatInput();
+          
+          // 应用保存的设置
+          setTimeout(() => {
+            applySavedFullscreenSettings();
+          }, 100);
+          
+          // 监听方向变化以自动退出
+          startOrientationListener();
+          
+          console.log('智能旋转全屏模式已激活');
+        } else {
+          // 退出旋转全屏模式
+          disableSmartRotateFullscreen();
+        }
+      }
+      
+      // 退出智能旋转全屏
+      function disableSmartRotateFullscreen() {
+        console.log('退出智能旋转全屏模式');
+        
+        const videoContainer = document.getElementById('videoContainer');
+        
+        // 移除旋转全屏类
+        videoContainer.classList.remove('rotate-fullscreen');
+        document.body.classList.remove('rotate-fullscreen-active');
+        
+        // 恢复按钮状态
+        fullscreenButton.innerHTML = '<i class="fas fa-expand"></i><span>页面全屏</span>';
+        fullscreenButton.classList.remove('rotate-fullscreen-active');
+        
+        // 移除退出按钮
+        removeRotateFullscreenExitButton();
+        
+        // 停止方向监听
+        stopOrientationListener();
+        
+        // 退出旋转全屏模式时移除聊天输入框
+        removeFullscreenChatInput();
+        
+        // 🔥 受限重置：仅清除旋转全屏相关的内联样式，保留其他状态
+        if (videoContainer) {
+          // 只清除旋转全屏可能添加的内联样式，保留其他样式和状态
+          const stylesToReset = [
+            'position', 'top', 'left', 'width', 'height', 'transform', 
+            'transform-origin', 'z-index', 'margin', 'padding', 
+            'border-radius', 'box-shadow'
+          ];
+          
+          stylesToReset.forEach(style => {
+            if (videoContainer.style[style]) {
+              videoContainer.style[style] = '';
+            }
+          });
+          
+          console.log('视频容器旋转全屏样式已清除');
+        }
+        
+        console.log('智能旋转全屏模式已退出');
+      }
+      
+      // 创建旋转全屏退出按钮
+      function createRotateFullscreenExitButton() {
+        if (document.getElementById('rotateFullscreenExitBtn')) return;
+        
+        const exitBtn = document.createElement('button');
+        exitBtn.id = 'rotateFullscreenExitBtn';
+        exitBtn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+        exitBtn.style.cssText = `
+          position: fixed !important;
+          top: 20px !important;
+          right: 20px !important;
+          z-index: 10001 !important;
+          background: transparent !important;
+          color: white !important;
+          border: none !important;
+          width: 40px !important;
+          height: 40px !important;
+          font-size: 18px !important;
+          cursor: pointer !important;
+          filter: brightness(50%) !important;
+          transform: rotate(-90deg) !important;
+        `;
+        
+        exitBtn.addEventListener('click', disableSmartRotateFullscreen);
+        document.body.appendChild(exitBtn);
+      }
+      
+      // 移除旋转全屏退出按钮
+      function removeRotateFullscreenExitButton() {
+        const exitBtn = document.getElementById('rotateFullscreenExitBtn');
+        if (exitBtn) {
+          exitBtn.remove();
+        }
+      }
+      
+      // 方向监听器
+      let orientationListener = null;
+      
+      function startOrientationListener() {
+        if (orientationListener) return;
+        
+        orientationListener = function() {
+          // 当设备旋转到横屏时自动退出旋转全屏
+          if (window.innerWidth > window.innerHeight) {
+            setTimeout(() => {
+              disableSmartRotateFullscreen();
+            }, 500); // 延迟500ms确保旋转完成
+          }
+        };
+        
+        window.addEventListener('resize', orientationListener);
+        window.addEventListener('orientationchange', orientationListener);
+      }
+      
+      function stopOrientationListener() {
+        if (orientationListener) {
+          window.removeEventListener('resize', orientationListener);
+          window.removeEventListener('orientationchange', orientationListener);
+          orientationListener = null;
+        }
+      }
       
       // 保存全屏聊天设置到本地存储
       function saveFullscreenChatSettings() {
@@ -1946,7 +2219,7 @@
         messageInput.style.border = '1px solid #ddd';
         messageInput.style.borderRadius = '20px';
         messageInput.style.width = '100%';
-        messageInput.style.backgroundColor = document.body.classList.contains('dark-theme') ? 'rgba(42, 42, 42, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+        messageInput.style.backgroundColor = 'var(--bg-primary)';
         messageInput.style.color = document.body.classList.contains('dark-theme') ? 'white' : 'black';
         
         // 创建表情按钮
@@ -2042,8 +2315,16 @@
         
         // 为发送按钮添加点击事件
         sendButton.addEventListener('click', function() {
+          console.log('发送按钮被点击');
           const message = messageInput.value.trim();
+          console.log('输入的消息:', message);
+          console.log('当前房间:', currentRoom);
+          console.log('用户名:', username);
+          console.log('socket连接状态:', socket ? 'socket存在' : 'socket不存在');
+          console.log('socket是否连接:', socket && socket.connected ? '已连接' : '未连接');
+          
           if (message && currentRoom && username) {
+            console.log('条件满足，开始发送消息');
             // 直接发送消息
             socket.emit('chat_message', {
               room: currentRoom,
@@ -2051,19 +2332,80 @@
               message,
               isImage: false
             });
+            console.log('socket.emit已调用');
             // 直接调用addChatMessage函数，确保消息显示在两个聊天窗口
             window.addChatMessage(username, message, true, false);
+            console.log('addChatMessage已调用');
             // 清空全屏输入框
             messageInput.value = '';
-            // 确保消息发送后聊天发送窗口保持显现
-            fullscreenChatInput.style.display = 'block';
+            // 保持当前显示状态，不再强制显示
+            // 如果用户之前关闭了发送框，发送消息后保持关闭状态
+            console.log('消息已发送，保持聊天发送框当前显示状态');
+          } else {
+            console.log('发送条件不满足:', {
+              hasMessage: !!message,
+              hasRoom: !!currentRoom,
+              hasUsername: !!username
+            });
           }
         });
         
-        // 为关闭按钮添加点击事件
+        // 为关闭按钮添加点击事件 - 仅隐藏聊天发送框容器
         closeButton.addEventListener('click', function() {
-          fullscreenChatInput.style.display = 'none';
+          console.log('关闭按钮被点击，开始检查元素状态...');
+          
+          // 重新获取元素，确保拿到的是DOM中的真实元素
+          const realFullscreenChatInput = document.getElementById('fullscreenChatInput');
+          console.log('通过ID获取的元素:', realFullscreenChatInput);
+          console.log('局部变量中的元素:', fullscreenChatInput);
+          console.log('两个元素是否相同:', realFullscreenChatInput === fullscreenChatInput);
+          
+          if (realFullscreenChatInput) {
+            console.log('元素当前display状态:', realFullscreenChatInput.style.display);
+            console.log('元素当前CSS样式:', window.getComputedStyle(realFullscreenChatInput).display);
+            console.log('元素在DOM中的位置:', realFullscreenChatInput.parentElement);
+            console.log('元素是否被其他元素遮挡:', checkElementOverlap(realFullscreenChatInput));
+            
+            // 使用CSS类来隐藏元素，避免被!important规则覆盖
+            console.log('尝试隐藏元素...');
+            realFullscreenChatInput.classList.add('hidden');
+            
+            // 验证设置是否生效
+            setTimeout(() => {
+              console.log('设置后display状态:', realFullscreenChatInput.style.display);
+              console.log('设置后CSS样式:', window.getComputedStyle(realFullscreenChatInput).display);
+              console.log('元素是否可见:', realFullscreenChatInput.offsetParent !== null);
+              console.log('元素高度:', realFullscreenChatInput.offsetHeight);
+              console.log('元素宽度:', realFullscreenChatInput.offsetWidth);
+              console.log('元素是否有hidden类:', realFullscreenChatInput.classList.contains('hidden'));
+            }, 100);
+            
+            console.log('已强制隐藏聊天发送框容器');
+          } else {
+            console.error('错误：无法找到fullscreenChatInput元素！');
+            console.log('DOM中所有ID包含chat的元素:', 
+              Array.from(document.querySelectorAll('[id*="chat"]')).map(el => el.id)
+            );
+            console.log('videoContainer中的子元素:', 
+              Array.from(document.querySelectorAll('#videoContainer > *')).map(el => el.id || el.className)
+            );
+          }
         });
+        
+        // 检查元素是否被其他元素遮挡
+        function checkElementOverlap(element) {
+          if (!element) return '元素不存在';
+          const rect = element.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          
+          const topElement = document.elementFromPoint(centerX, centerY);
+          return {
+            topElement: topElement,
+            isTopElement: topElement === element,
+            elementAtPoint: topElement ? topElement.id || topElement.className || topElement.tagName : 'none'
+          };
+        }
         
         // 为了确保消息能够被正确记录，我们也可以在发送成功后直接添加消息到全页聊天面板
         // 监听原始消息输入框的变化，当消息发送后可以额外处理
@@ -3476,32 +3818,47 @@
           
           // 实现按下回车键显示聊天发送窗口的功能
           function handleKeyDown(event) {
-            // 检查是否在全屏模式或页面全屏模式
+            // 获取聊天输入框元素
+            const fullscreenChatInput = document.getElementById('fullscreenChatInput');
+            const messageInput = document.getElementById('fullscreenMessageInput'); // 修正ID
+            
+            // 检查是否在全屏模式或页面全屏模式或旋转全屏模式
             const isFullscreen = !!(document.fullscreenElement || 
                                   document.webkitFullscreenElement || 
                                   document.mozFullScreenElement || 
                                   document.msFullscreenElement);
             const isPageFullscreen = videoContainer.classList.contains('page-fullscreen');
+            const isRotateFullscreen = videoContainer.classList.contains('rotate-fullscreen');
             
-            // 只有在全屏模式下才响应回车键
-            if ((isFullscreen || isPageFullscreen) && event.key === 'Enter') {
+            // 只有在全屏模式下才响应回车键（包括旋转全屏）
+            if ((isFullscreen || isPageFullscreen || isRotateFullscreen) && event.key === 'Enter') {
               // 如果聊天窗口已经显示且光标在输入框中，让默认的回车发送逻辑处理
-              if (fullscreenChatInput.style.display !== 'none' && document.activeElement === messageInput) {
+              const isHidden = fullscreenChatInput && fullscreenChatInput.style.display === 'none'; // 修正隐藏判断
+              if (fullscreenChatInput && !isHidden && messageInput && document.activeElement === messageInput) {
                 return; // 不阻止默认行为，让回车发送消息
               }
               
-              // 否则显示聊天窗口并聚焦输入框
+              // 否则显示聊天窗口并聚焦输入框（仅当容器当前隐藏时）
               event.preventDefault(); // 阻止默认行为，避免触发视频播放/暂停
-              fullscreenChatInput.style.display = 'block';
-              messageInput.focus();
+              if (fullscreenChatInput && messageInput && isHidden) {
+                fullscreenChatInput.style.display = 'block'; // 修正显示方式
+                messageInput.focus();
+                console.log('键盘事件：显示聊天发送框');
+              } else if (fullscreenChatInput && messageInput) {
+                // 如果已经显示，只聚焦输入框
+                messageInput.focus();
+                console.log('键盘事件：聊天发送框已显示，只聚焦输入框');
+              }
             }
           }
           
           // 添加键盘事件监听器
           document.addEventListener('keydown', handleKeyDown);
           
-          // 存储事件监听器引用，以便后续移除
-          fullscreenChatInput._keydownHandler = handleKeyDown;
+          // 存储事件监听器引用，以便后续移除（确保元素存在）
+          if (fullscreenChatInput) {
+            fullscreenChatInput._keydownHandler = handleKeyDown;
+          }
           
           // 保存原始的addChatMessage函数引用
           const originalAddChatMessage = window.originalAddChatMessage || window.addChatMessage;
@@ -3678,9 +4035,10 @@
                               document.mozFullScreenElement || 
                               document.msFullscreenElement);
         const isPageFullscreen = videoContainer.classList.contains('page-fullscreen');
+        const isRotateFullscreen = videoContainer.classList.contains('rotate-fullscreen');
         
-        // 只有在全屏模式下才重置计时器
-        if (isFullscreen || isPageFullscreen) {
+        // 只有在全屏模式下才重置计时器（包括旋转全屏）
+        if (isFullscreen || isPageFullscreen || isRotateFullscreen) {
           // 清除现有的计时器
           if (window.autoHideTimer) {
             clearTimeout(window.autoHideTimer);
@@ -3819,11 +4177,30 @@
             const buttonRect = aButton.getBoundingClientRect();
             
             // 设置弹窗位置为相对于视口，避免被困在聊天区域内
+            // 移动端优化：居中右移30px + 边界检测
+            const popupWidth = 280; // 弹窗宽度
+            const margin = 15; // 边距
+            const rightOffset = 30; // 右移偏移量
+            
+            // 计算理想位置：居中基础上右移30px
+            let idealLeft = buttonRect.left + buttonRect.width / 2 - popupWidth / 2 + rightOffset;
+            
+            // 边界检测：确保不超出屏幕边界
+            const maxLeft = window.innerWidth - popupWidth - margin;
+            const minLeft = margin;
+            
+            if (idealLeft < minLeft) {
+                idealLeft = minLeft;
+            } else if (idealLeft > maxLeft) {
+                idealLeft = maxLeft;
+            }
+            
             aButtonPopup.style.position = 'fixed';
             aButtonPopup.style.bottom = 'auto';
             aButtonPopup.style.top = (buttonRect.top - 10) + 'px'; // 按钮上方10px
-            aButtonPopup.style.left = (buttonRect.left + buttonRect.width / 2) + 'px';
-            aButtonPopup.style.transform = 'translateX(-50%) translateY(-100%)';
+            aButtonPopup.style.left = idealLeft + 'px';
+            aButtonPopup.style.transform = 'translateY(-100%)'; // 只垂直居中，水平位置已计算
+            aButtonPopup.style.margin = margin + 'px';
             aButtonPopup.style.zIndex = '2147483647'; // 确保在最上层
             
             // 显示弹窗
@@ -4390,6 +4767,51 @@
 
     // 初始化简化版位置选择
     initEnhancedPositionSelection();
+    
+    // 聊天功能按钮点击事件
+    const chatFunctionButton = document.getElementById('chatFunctionButton');
+    if (chatFunctionButton) {
+      chatFunctionButton.addEventListener('click', function() {
+        console.log('聊天功能按钮被点击');
+        
+        // 获取聊天输入框元素
+        const fullscreenChatInput = document.getElementById('fullscreenChatInput');
+        const messageInput = document.getElementById('messageInput');
+        
+        // 在全屏模式下，模拟回车键的功能
+        const isFullscreen = !!(document.fullscreenElement || 
+                              document.webkitFullscreenElement || 
+                              document.mozFullScreenElement || 
+                              document.msFullscreenElement);
+        const isPageFullscreen = videoContainer.classList.contains('page-fullscreen');
+        const isRotateFullscreen = videoContainer.classList.contains('rotate-fullscreen');
+        
+        // 只有在全屏模式下才触发聊天窗口显示（包括旋转全屏）
+        if (isFullscreen || isPageFullscreen || isRotateFullscreen) {
+          // 如果聊天窗口已经显示且光标在输入框中，让默认的回车发送逻辑处理
+          const isHidden = fullscreenChatInput && fullscreenChatInput.classList.contains('hidden');
+          if (fullscreenChatInput && !isHidden && messageInput && document.activeElement === messageInput) {
+            return; // 不阻止默认行为，让回车发送消息
+          }
+          
+          // 否则显示聊天窗口并聚焦输入框（仅当容器当前隐藏时）
+          if (fullscreenChatInput && messageInput) {
+            if (isHidden) {
+              fullscreenChatInput.classList.remove('hidden');
+              console.log('全屏模式下显示聊天窗口');
+            } else {
+              console.log('聊天窗口已显示，无需重复显示');
+            }
+            messageInput.focus();
+          } else {
+            console.log('聊天输入框元素未找到');
+          }
+        } else {
+          console.log('聊天功能按钮被点击（非全屏模式）');
+          showBottomToast('请在全屏模式下使用聊天功能');
+        }
+      });
+    }
     
     // 统一的视频加载停止函数 - 完全停止所有检测和加载
     function stopAllVideoLoading() {

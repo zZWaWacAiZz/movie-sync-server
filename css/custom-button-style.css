@@ -198,6 +198,8 @@
       border-color: #444;
     }
     
+    
+    
     body.dark-theme .chat-input {
       border-top-color: #444;
     }
@@ -353,28 +355,50 @@
     }
     
     .user-count-box {
-      padding: 8px 15px;
-      border: 1px solid var(--button-border);
-      border-radius: var(--border-radius-medium);
-      background-color: var(--button-background);
-      color: var(--button-text-color);
-      box-shadow: var(--shadow-medium);
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: var(--control-height);
+      height: auto;
       box-sizing: border-box;
       margin-right: var(--button-gap);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       min-width: fit-content;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    /* 移动端在线人数显示优化 */
+    @media screen and (max-width: 768px) {
+      .user-count-box {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        filter: brightness(0.5); /* 亮度调整到50% */
+      }
+      
+      /* 视频播放器右上角房间名字 - PC端基础样式 */
+      .video-user-count .video-room-name {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        margin-right: 8px;
+        filter: brightness(0.5); /* 亮度调整到50% */
+      }
     }
     
     body.dark-theme .user-count-box {
-      background-color: #2a2a2a !important;
+      background: none !important;
       color: white !important;
-      border-color: #444 !important;
+      border: none !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
     }
     
     .control-button,
@@ -436,6 +460,32 @@
       font-size: 14px;
     }
     
+    /* 视频播放器右上角房间名字 - PC端样式 */
+    .video-user-count .video-room-name {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+      margin-right: 8px;
+      height: auto;
+      padding: 0;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    .video-user-count .video-room-name .room-name {
+      color: white;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    }
+    
+    .video-user-count .video-room-name .room-name i {
+      font-size: 14px;
+      margin-right: 4px;
+    }
+    
+    .video-user-count .video-room-name .room-name i::after {
+      display: none; /* 隐藏冒号 */
+    }
+    
     .room-name-box {
       padding: 8px 15px;
       border: 1px solid var(--button-border);
@@ -452,12 +502,164 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    .chat-function-box {
+      padding: 8px 12px;
+      border: 1px solid var(--button-border);
+      border-radius: var(--border-radius-medium);
+      background-color: var(--button-background);
+      color: var(--button-text-color);
+      box-shadow: var(--shadow-medium);
+      min-width: fit-content;
+      height: var(--control-height);
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    .chat-function-box:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    .chat-function-button {
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .chat-function-button i {
+      font-size: 16px;
     }
     
     body.dark-theme .room-name-box {
       background-color: #2a2a2a !important;
       color: white !important;
       border-color: #444 !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    body.dark-theme .chat-function-box {
+      background-color: #2a2a2a !important;
+      color: white !important;
+      border-color: #444 !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    body.dark-theme .chat-function-box:hover {
+      background-color: #3a3a3a !important;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    /* 深色模式下视频播放器右上角房间名字保持透明 */
+    body.dark-theme .video-user-count .video-room-name {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    /* 深色模式下视频播放器右上角聊天功能按钮保持透明 */
+    body.dark-theme .video-user-count .video-chat-function {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    body.dark-theme .video-user-count .video-chat-function:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    /* 视频播放器右边中间聊天功能按钮 */
+    /* PC端默认隐藏聊天气泡按钮 */
+    .video-chat-button-right {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      height: 0 !important;
+      width: 0 !important;
+      overflow: hidden !important;
+    }
+    
+    /* 仅在移动端全屏模式下显示聊天气泡按钮 */
+    @media screen and (max-width: 768px) {
+      body.page-fullscreen .video-chat-button-right,
+      body.rotate-fullscreen-active .video-chat-button-right {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        width: auto !important;
+        overflow: visible !important;
+        position: absolute !important;
+        right: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 100 !important;
+      }
+    }
+    
+    .video-chat-function-right {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      color: white !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+      backdrop-filter: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    .video-chat-function-right .chat-function-button {
+      background: transparent !important;
+      border: none !important;
+      color: white !important;
+      font-size: 16px !important;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)) brightness(0.5) !important; /* 亮度调整到50% */
+    }
+    
+    .video-chat-function-right .chat-function-button i {
+      font-size: 18px !important;
+      filter: none !important; /* 移除阴影效果 */
+      transition: none !important; /* 移除动画效果 */
+    }
+    
+    /* 深色模式下视频播放器右边中间聊天功能按钮 */
+    body.dark-theme .video-chat-function-right {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      filter: brightness(0.5); /* 亮度调整到50% */
+    }
+    
+    body.dark-theme .video-chat-function-right:hover {
+      background: transparent !important; /* 移除悬停效果 */
+      filter: brightness(0.5); /* 亮度调整到50% */
     }
 
     .room-name-box .room-name {
@@ -714,6 +916,20 @@
     
     .force-pc-layout .user-list-container {
       display: block !important; /* PC设备上显示用户列表容器 */
+    }
+
+    /* PC端隐藏功能菜单按钮和首页按钮 */
+    @media screen and (min-width: 769px) {
+      #featureMenuButton,
+      #homeButton {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
+      }
     }
 
     /* PC端固定布局 - 已移除所有移动端相关样式 */
@@ -1093,6 +1309,34 @@
       color: #fff;
       border-bottom: 1px solid rgba(255, 255, 255, 0.3);
       padding-bottom: 6px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .close-network-status-btn {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    
+    .close-network-status-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ff6b6b;
+    }
+    
+    .close-network-status-btn i {
+      font-size: 14px;
     }
     
     .network-quality-excellent { color: #4CAF50; font-weight: bold; }
@@ -1152,6 +1396,19 @@
     
     body.dark-theme .user-count-box #userCount {
       color: #8a94e9;
+    }
+    
+    /* 移动端深色模式在线人数显示优化 */
+    @media screen and (max-width: 768px) {
+      body.dark-theme .user-count-box {
+        background: transparent !important;
+        border: none !important;
+      }
+      
+      body.dark-theme .user-count-box #userCount {
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+      }
     }
     
     /* 深色模式下的房间名字框样式 */
@@ -1420,7 +1677,7 @@
       border: 1px solid #ddd;
       border-radius: 4px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      z-index: 1000;
+      z-index: 3000;
       min-width: 150px;
       padding: 2px 0;
       display: none;
@@ -2270,6 +2527,66 @@
       padding: 4px 0 !important;
       box-shadow: none !important;
       border: none !important;
+    }
+
+    /* 功能菜单容器样式 */
+    .feature-menu-container {
+      position: absolute;
+      top: -50px; /* 在按钮上方显示 */
+      right: 0;
+      background-color: var(--popup-bg);
+      border: 1px solid var(--popup-border);
+      border-radius: var(--border-radius-medium);
+      box-shadow: var(--popup-shadow);
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      z-index: 1000;
+      min-width: 320px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* 功能菜单项按钮样式 */
+    .feature-menu-item {
+      margin: 0;
+      min-width: 70px;
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    /* 功能菜单按钮激活状态 */
+    #featureMenuButton.active {
+      background-color: var(--accent-color);
+      color: white;
+      border-color: var(--accent-color);
+    }
+
+    /* 深色模式下的功能菜单样式 */
+    body.dark-theme .feature-menu-container {
+      background-color: #2a2a2a;
+      border-color: #444;
+    }
+
+    /* 功能菜单动画效果 */
+    .feature-menu-container {
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 功能菜单容器定位调整 */
+    .video-controls-container {
+      position: relative;
     }
 
     @supports (-webkit-appearance: none) {

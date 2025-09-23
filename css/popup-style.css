@@ -1,4 +1,4 @@
-    /* 弹窗容器基础样式 */
+/* 弹窗容器基础样式 */
     #exitConfirmModal {
       position: fixed;
       top: 0;
@@ -128,6 +128,6 @@
       border-color: #495057 !important;
     }
     body.dark-theme #confirmShare {
-      background-color: #218838 !important;
-      border-color: #218838 !important;
-    }
+  background-color: #218838 !important;
+  border-color: #218838 !important;
+}

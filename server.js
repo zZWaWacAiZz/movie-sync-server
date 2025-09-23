@@ -24,6 +24,11 @@ const cacheOptions = {
   etag: true,        // 启用ETag验证
   lastModified: true // 启用最后修改时间验证
 };
+
+// 移动端测试页面路由
+app.get('/mobile-test', (req, res) => {
+  res.sendFile(__dirname + '/mobile-test.html');
+});
 const io = new Server(server, {
   cors: { origin: "*" },
   maxHttpBufferSize: 10e6, // 10MB，增加消息大小限制
@@ -1229,6 +1234,7 @@ app.use('/js', express.static(__dirname + '/js', {
   maxAge: '1h', // JS文件缓存1小时  
   etag: true
 }));
-server.listen(3000, () => {
-  console.log('服务器运行在 http://localhost:3000');
+const port = process.argv[2] || 3000;
+server.listen(port, () => {
+  console.log(`服务器运行在 http://localhost:${port}`);
 });

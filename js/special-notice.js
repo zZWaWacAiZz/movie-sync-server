@@ -12,6 +12,11 @@
         const closeNoticeBtn = document.getElementById('closeNoticeBtn');
         const mainContainer = document.querySelector('.main-container');
 
+        console.log('特别提醒元素检查:');
+        console.log('specialNoticeModal:', specialNoticeModal);
+        console.log('closeNoticeBtn:', closeNoticeBtn);
+        console.log('mainContainer:', mainContainer);
+
         if (!specialNoticeModal || !closeNoticeBtn || !mainContainer) {
             console.error('特别提醒弹窗元素未找到');
             return;
@@ -19,14 +24,19 @@
 
         // 页面加载时显示特别提醒
         function checkAndShowNotice() {
+            console.log('检查特别提醒显示条件...');
+            
             // 检查用户是否勾选了"不再显示"
             const dontShow = localStorage.getItem('specialNoticeDontShow');
+            console.log('不再显示设置:', dontShow);
             
             if (!dontShow || dontShow !== 'true') {
+                console.log('显示特别提醒');
                 specialNoticeModal.style.display = 'flex';
                 // 隐藏创建房间界面
                 mainContainer.style.display = 'none';
             } else {
+                console.log('跳过特别提醒，直接显示主界面');
                 // 如果用户选择了不再显示，直接显示创建房间界面
                 specialNoticeModal.style.display = 'none';
                 mainContainer.style.display = 'flex';
@@ -84,6 +94,10 @@
         });
 
         // 初始化
+        checkAndShowNotice();
+        
+        // 调试：强制显示特别提醒（开发时取消注释）
+        localStorage.removeItem('specialNoticeDontShow');
         checkAndShowNotice();
 
         // 回车键在全屏模式下打开聊天框

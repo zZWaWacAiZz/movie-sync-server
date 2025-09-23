@@ -1,5 +1,5 @@
 // 在本地测试时连接到本地服务器
-      const socket = io('https://movie-sync-server-production-d384.up.railway.app/', {
+      const socket = io('http://localhost:3000', {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数
@@ -60,6 +60,16 @@
       socket.on('reconnect_failed', () => {
         console.error('重连失败，超出最大尝试次数');
         addStatusMessage('无法连接到服务器，请检查网络或刷新页面');
+      });
+      
+      // 监听消息发送确认
+      socket.on('message_sent', (data) => {
+        console.log('消息发送成功确认:', data);
+      });
+      
+      socket.on('message_error', (error) => {
+        console.error('消息发送错误:', error);
+        addStatusMessage(`消息发送失败: ${error.message}`);
       });
       
       // 监听房间配置更新
@@ -390,15 +400,67 @@
         
         let isVisible = false;
         
-        toggleBtn.addEventListener('click', () => {
+        // 点击外部关闭的处理函数
+        function handleClickOutside(event) {
+          // 如果点击的是网络状态面板内部或切换按钮，不关闭
+          if (networkStatusEl.contains(event.target) || toggleBtn.contains(event.target)) {
+            return;
+          }
+          
+          // 关闭面板
+          isVisible = false;
+          networkStatusEl.classList.add('hidden');
+          toggleBtn.classList.remove('active');
+          
+          // 移除事件监听
+          document.removeEventListener('click', handleClickOutside);
+          console.log('点击外部关闭网络状态面板');
+        }
+        
+        toggleBtn.addEventListener('click', (event) => {
+          event.stopPropagation(); // 防止触发外部点击关闭
           isVisible = !isVisible;
           
           if (isVisible && currentRoom) {
+            console.log('显示网络状态弹窗');
             networkStatusEl.classList.remove('hidden');
             toggleBtn.classList.add('active');
+            
+            // 移动端强制显示样式
+            if (window.innerWidth <= 768) {
+              networkStatusEl.style.display = 'block';
+              networkStatusEl.style.opacity = '1';
+              networkStatusEl.style.visibility = 'visible';
+              networkStatusEl.style.position = 'fixed';
+              networkStatusEl.style.zIndex = '99999';
+              networkStatusEl.style.top = '50%';
+              networkStatusEl.style.left = '50%';
+              networkStatusEl.style.transform = 'translate(-50%, -50%)';
+              networkStatusEl.style.background = 'rgba(0, 0, 0, 0.95)';
+              networkStatusEl.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+              networkStatusEl.style.borderRadius = '12px';
+              networkStatusEl.style.padding = '20px';
+              networkStatusEl.style.color = 'white';
+              networkStatusEl.style.minWidth = '280px';
+              networkStatusEl.style.minHeight = '150px';
+              networkStatusEl.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.5)';
+              networkStatusEl.style.backdropFilter = 'blur(10px)';
+              networkStatusEl.style.webkitBackdropFilter = 'blur(10px)';
+            }
+            
+            // 更新网络状态显示
+            updateNetworkStatusDisplay();
+            
+            // 延迟添加外部点击监听，避免立即触发关闭
+            setTimeout(() => {
+              document.addEventListener('click', handleClickOutside);
+            }, 100);
+            
+            console.log('网络状态弹窗已显示');
           } else {
             networkStatusEl.classList.add('hidden');
             toggleBtn.classList.remove('active');
+            document.removeEventListener('click', handleClickOutside);
           }
         });
         
@@ -410,6 +472,45 @@
             toggleBtn.title = `网络: ${qualityText} | 延迟: ${networkQuality.rtt}ms | 点击查看详情`;
           }
         });
+        
+        // 为关闭按钮添加事件监听
+        const closeBtn = document.getElementById('closeNetworkStatus');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', (event) => {
+            event.stopPropagation(); // 防止事件冒泡
+            console.log('点击关闭按钮关闭网络状态弹窗');
+            
+            // 关闭面板
+            isVisible = false;
+            networkStatusEl.classList.add('hidden');
+            toggleBtn.classList.remove('active');
+            
+            // 移除外部点击监听
+            document.removeEventListener('click', handleClickOutside);
+            
+            // 重置移动端样式
+            if (window.innerWidth <= 768) {
+              networkStatusEl.style.display = '';
+              networkStatusEl.style.opacity = '';
+              networkStatusEl.style.visibility = '';
+              networkStatusEl.style.position = '';
+              networkStatusEl.style.zIndex = '';
+              networkStatusEl.style.top = '';
+              networkStatusEl.style.left = '';
+              networkStatusEl.style.transform = '';
+              networkStatusEl.style.background = '';
+              networkStatusEl.style.border = '';
+              networkStatusEl.style.borderRadius = '';
+              networkStatusEl.style.padding = '';
+              networkStatusEl.style.color = '';
+              networkStatusEl.style.minWidth = '';
+              networkStatusEl.style.minHeight = '';
+              networkStatusEl.style.boxShadow = '';
+              networkStatusEl.style.backdropFilter = '';
+              networkStatusEl.style.webkitBackdropFilter = '';
+            }
+          });
+        }
       }
 
       // 初始化视频播放器事件监听
@@ -730,12 +831,58 @@
           }
           
           // 清空错误消息
-          const errorMessage = document.getElementById('errorMessage');
-          if (errorMessage) {
-            errorMessage.style.display = 'none';
-            errorMessage.textContent = '';
+        const errorMessage = document.getElementById('errorMessage');
+        if (errorMessage) {
+          errorMessage.style.display = 'none';
+          errorMessage.textContent = '';
+        }
+      });
+
+      // 首页按钮点击事件 - 与房间图标按钮功能相同
+      const homeButton = document.getElementById('homeButton');
+      if (homeButton) {
+        homeButton.addEventListener('click', () => {
+          // 显示房间创建/加入弹窗
+          const roomModal = document.getElementById('roomModal');
+          if (roomModal) {
+            roomModal.style.display = 'flex';
+            
+            // 获取输入框元素（使用正确的ID）
+            const usernameInput = document.getElementById('username');
+            const roomNameInput = document.getElementById('roomName');
+            const passwordInput = document.getElementById('roomPassword');
+            
+            // 智能填充表单
+            if (currentRoom && username) {
+              // 如果用户已在房间内，自动填充当前用户名
+              usernameInput.value = username;
+              // 清空房间名和密码，让用户输入新的
+              roomNameInput.value = '';
+              passwordInput.value = '';
+              // 设置焦点到房间名输入框
+              setTimeout(() => {
+                roomNameInput.focus();
+              }, 100);
+            } else {
+              // 如果用户还未加入房间，清空所有输入框
+              usernameInput.value = '';
+              roomNameInput.value = '';
+              passwordInput.value = '';
+              // 设置焦点到用户名输入框
+              setTimeout(() => {
+                usernameInput.focus();
+              }, 100);
+            }
+            
+            // 清空错误消息
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage) {
+              errorMessage.style.display = 'none';
+              errorMessage.textContent = '';
+            }
           }
         });
+      }
       }
 
       // 准备按钮点击事件
@@ -805,13 +952,53 @@
         }
       }
 
-      // 点击发送按钮
-      document.getElementById('sendButton').addEventListener('click', sendChatMessage);
+      // 为普通模式的发送按钮添加点击事件监听器
+      document.getElementById('sendButton').addEventListener('click', function() {
+        console.log('普通模式发送按钮被点击');
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value.trim();
+        console.log('输入的消息:', message);
+        console.log('当前房间:', currentRoom);
+        console.log('用户名:', username);
+        console.log('socket连接状态:', socket ? 'socket存在' : 'socket不存在');
+        console.log('socket是否连接:', socket && socket.connected ? '已连接' : '未连接');
+        
+        if (message && currentRoom && username) {
+          console.log('条件满足，开始发送消息');
+          // 直接发送消息
+          socket.emit('chat_message', {
+            room: currentRoom,
+            username,
+            message,
+            isImage: false
+          });
+          console.log('socket.emit已调用');
+          // 直接调用addChatMessage函数，确保消息显示在聊天窗口
+          window.addChatMessage(username, message, true, false);
+          console.log('addChatMessage已调用');
+          // 清空输入框
+          messageInput.value = '';
+          console.log('消息已发送，输入框已清空');
+        } else {
+          console.log('发送条件不满足:', {
+            hasMessage: !!message,
+            hasRoom: !!currentRoom,
+            hasUsername: !!username
+          });
+        }
+      });
 
       // 按回车发送
       document.getElementById('messageInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-          sendChatMessage();
+          // 使用全屏发送按钮的点击事件，避免重复逻辑
+          const sendButton = document.getElementById('sendButton');
+          if (sendButton) {
+            sendButton.click();
+          } else {
+            // 备用方案：直接调用sendChatMessage
+            sendChatMessage();
+          }
         }
       });
 
@@ -2159,9 +2346,11 @@
                                 document.msFullscreenElement);
           // 检查是否处于页面全屏模式
           const isPageFullscreen = videoContainer.classList.contains('page-fullscreen');
+          // 检查是否处于旋转全屏模式
+          const isRotateFullscreen = videoContainer.classList.contains('rotate-fullscreen');
           
-          // 如果处于全屏或页面全屏模式
-          if (isFullscreen || isPageFullscreen) {
+          // 如果处于全屏、页面全屏或旋转全屏模式
+          if (isFullscreen || isPageFullscreen || isRotateFullscreen) {
             const fullscreenChatPanel = document.getElementById('fullscreenChatPanel');
             const collapseButton = document.getElementById('fullscreenChatCollapseButton');
             
@@ -2201,9 +2390,10 @@
                                          document.mozFullScreenElement || 
                                          document.msFullscreenElement);
                   const stillPageFullscreen = videoContainer.classList.contains('page-fullscreen');
+                  const stillRotateFullscreen = videoContainer.classList.contains('rotate-fullscreen');
                   
-                  // 只有在全屏或页面全屏模式下，并且面板已经展开，并且是自动展开的情况下才自动隐藏
-                  if ((stillFullscreen || stillPageFullscreen) && 
+                  // 只有在全屏、页面全屏或旋转全屏模式下，并且面板已经展开，并且是自动展开的情况下才自动隐藏
+                  if ((stillFullscreen || stillPageFullscreen || stillRotateFullscreen) && 
                       fullscreenChatPanel.dataset.collapsed === 'false' && 
                       fullscreenChatPanel.dataset.autoExpanded === 'true') {
                     // 折叠聊天面板
@@ -3512,6 +3702,7 @@
         sortedUsers.forEach(user => {
           // 创建列表项
           const li = document.createElement('li');
+          li.classList.add('user-list-item'); // 添加用户列表项类名
           
           // 创建左侧区域（状态图标 + 头像）
           const leftArea = document.createElement('div');
@@ -4081,6 +4272,7 @@
       });
 
       socket.on('chat_message', (data) => {
+        console.log('收到聊天消息:', data);
         addChatMessage(data.username, data.message, false, data.isImage);
       });
 
@@ -4579,4 +4771,12 @@
           requestRoomList();
         }, 1000);
       }
+      
+      // 将PC端右键菜单函数暴露到全局作用域，供移动端调用
+      window.showUserContextMenu = showUserContextMenu;
+      window.createUserContextMenu = createUserContextMenu;
+      window.closeContextMenu = closeContextMenu;
+      window.handleContextMenuAction = handleContextMenuAction;
+      window.showUserAvatar = showUserAvatar;
+      window.hideUserContextMenu = hideUserContextMenu;
       
