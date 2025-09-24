@@ -53,9 +53,14 @@ timeout /t 10 /nobreak >nul
 
 REM 健康检查
 echo 🏥 检查应用健康状态...
+REM 获取实际的服务器地址
+set SERVER_URL=https://moviesyncserver1-py2eksxw.b4a.run
+set HEALTH_URL=%SERVER_URL%/health
+
+echo 检查健康状态: %HEALTH_URL%
 set HEALTH_CHECK_PASSED=false
 for /l %%i in (1,1,30) do (
-    curl -f http://localhost:3000/health >nul 2>&1
+    curl -f %HEALTH_URL% >nul 2>&1
     if !errorlevel! equ 0 (
         echo ✅ 应用已成功启动并运行正常！
         set HEALTH_CHECK_PASSED=true
@@ -73,8 +78,8 @@ if "%HEALTH_CHECK_PASSED%"=="false" (
 REM 输出信息
 echo.
 echo 📋 部署信息：
-echo 应用地址: http://localhost:3000
-echo 健康检查: http://localhost:3000/health
+echo 服务器地址: %SERVER_URL%
+echo 健康检查: %HEALTH_URL%
 echo.
 echo 📊 查看日志:
 if "%USE_COMPOSE%"=="true" (

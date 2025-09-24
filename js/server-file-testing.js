@@ -1,5 +1,22 @@
-// 在本地测试时连接到本地服务器
-      const socket = io('https://moviesyncserver1-py2eksxw.b4a.run', {
+// 动态获取服务器地址 - 支持本地和生产环境
+      const getServerUrl = () => {
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+        const port = window.location.port ? ':' + window.location.port : '';
+        
+        // 如果是本地访问，使用本地服务器
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          return 'http://localhost:3000';
+        }
+        
+        // 如果是生产环境，使用当前域名（你的服务器地址）
+        return `${protocol}//${hostname}${port}`;
+      };
+      
+      const serverUrl = getServerUrl();
+      console.log('连接到服务器:', serverUrl);
+      
+      const socket = io(serverUrl, {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数

@@ -1244,7 +1244,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-const port = process.argv[2] || 3000;
+const port = process.argv[2] || process.env.PORT || 3000;
+const serverUrl = process.env.SERVER_URL || `http://localhost:${port}`;
+
 server.listen(port, () => {
-  console.log(`服务器运行在 http://localhost:${port}`);
+  console.log(`服务器运行在 ${serverUrl}`);
+  console.log(`健康检查端点: ${serverUrl}/health`);
 });

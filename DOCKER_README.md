@@ -9,6 +9,11 @@
 
 ## 🚀 快速部署
 
+### ⚙️ 服务器地址配置
+你的服务器地址：`https://moviesyncserver1-py2eksxw.b4a.run`
+
+系统已自动配置为你的服务器地址，前端会根据访问域名自动连接正确的服务器。
+
 ### 方法1：使用部署脚本（推荐）
 ```bash
 # Linux/Mac
@@ -34,8 +39,8 @@ docker run -d -p 3000:3000 --name video-sync-container video-sync-app
 ```
 
 ## 🔍 验证部署
-- 应用访问：http://localhost:3000
-- 健康检查：http://localhost:3000/health
+- 应用访问：https://moviesyncserver1-py2eksxw.b4a.run
+- 健康检查：https://moviesyncserver1-py2eksxw.b4a.run/health
 
 ## 📊 管理命令
 ```bash

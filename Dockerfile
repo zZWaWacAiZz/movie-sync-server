@@ -13,6 +13,11 @@ RUN npm ci --only=production
 # 复制应用源代码
 COPY . .
 
+# 设置环境变量
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV SERVER_URL=https://moviesyncserver1-py2eksxw.b4a.run
+
 # 暴露端口（根据你的应用需求）
 EXPOSE 3000
 

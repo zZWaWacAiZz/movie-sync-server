@@ -73,8 +73,13 @@ sleep 10
 
 # 健康检查
 echo "🏥 检查应用健康状态..."
+# 获取实际的服务器地址
+SERVER_URL="${SERVER_URL:-https://moviesyncserver1-py2eksxw.b4a.run}"
+HEALTH_URL="${SERVER_URL}/health"
+
+echo "检查健康状态: $HEALTH_URL"
 for i in {1..30}; do
-    if curl -f http://localhost:3000/health &>/dev/null; then
+    if curl -f "$HEALTH_URL" &>/dev/null; then
         success_msg "应用已成功启动并运行正常！"
         break
     fi
@@ -87,8 +92,8 @@ done
 # 输出信息
 echo ""
 echo "📋 部署信息："
-echo "应用地址: http://localhost:3000"
-echo "健康检查: http://localhost:3000/health"
+echo "服务器地址: $SERVER_URL"
+echo "健康检查: $HEALTH_URL"
 echo ""
 echo "📊 查看日志:"
 if [ "$USE_COMPOSE" = true ]; then
