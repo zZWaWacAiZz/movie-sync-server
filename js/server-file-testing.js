@@ -1,5 +1,5 @@
 // 连接到远程服务器
-      const socket = io('https://moviesyncserver2-3fw3q1ue.b4a.run', {
+      const socket = io('https://moviesyncserver2-3fw3q1ue.b4a.run/', {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数
