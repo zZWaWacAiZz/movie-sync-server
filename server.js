@@ -1234,6 +1234,16 @@ app.use('/js', express.static(__dirname + '/js', {
   maxAge: '1h', // JS文件缓存1小时  
   etag: true
 }));
+// 健康检查端点 - 用于Docker容器健康检查
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage()
+  });
+});
+
 const port = process.argv[2] || 3000;
 server.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
