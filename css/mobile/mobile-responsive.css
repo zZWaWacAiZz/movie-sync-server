@@ -1,0 +1,1816 @@
+/* === 移动端适配样式 === */
+/* 这些样式只在移动设备上生效，完全独立于PC端布局 */
+
+/* 预加载页面强制显示 - 最高优先级 */
+#preloader {
+    z-index: 99999 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%) !important;
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#preloader .loading-animation,
+#preloader .loading-text,
+#preloader .progress-container {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* 移动设备检测 - 使用媒体查询 */
+@media screen and (max-width: 768px) {
+    /* 强制移动端布局模式 */
+    :root {
+        --force-layout-mode: mobile;
+    }
+    
+    /* 重置body的最小宽度限制 */
+    body {
+        min-width: 100vw !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* 主容器移动端布局 */
+    .main-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 100vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 100vh !important;
+    }
+    
+    /* 视频和聊天容器垂直布局 */
+    .video-chat-container {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100vh !important;
+        width: 100vw !important;
+        gap: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* 视频区域 - 占35%屏幕高度 */
+    .video-section {
+        height: 35vh !important;
+        min-height: 35vh !important;
+        max-height: 35vh !important;
+        width: 100vw !important;
+        flex: 0 0 35vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        position: relative !important;
+    }
+    
+    /* 视频容器适配 */
+    .video-container {
+        height: calc(35vh - 50px) !important; /* 减去控制栏高度 */
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    /* 视频播放器全屏适配 */
+    .video-container video {
+        height: 100% !important;
+        width: 100% !important;
+        object-fit: contain !important;
+        border-radius: 0 !important;
+    }
+    
+    
+    
+    /* 视频底部控制栏 */
+    #videoBottomBar {
+        height: 50px !important;
+        width: 100vw !important;
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        backdrop-filter: blur(10px) !important;
+        margin: 0 !important;
+        padding: 5px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        z-index: 100 !important;
+    }
+    
+    /* 隐藏用户列表容器 */
+    .user-list-container {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* 隐藏视频URL输入容器 */
+    .video-url-container {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* 隐藏左侧控制容器（暗色模式、本地视频按钮） */
+    .left-controls-container {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* 聊天区域 - 移动端优化，使用flex布局自动填充剩余空间 */
+    .chat-section {
+        flex: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        position: relative !important;
+    }
+    
+    /* 聊天容器 - 移动端优化，填满剩余空间 */
+    .chat-container {
+        flex: 1 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        border-radius: 0 !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    /* 聊天消息区域 - 移动端优化 */
+    .chat-messages {
+        flex: 1 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding-bottom: 20px !important; /* 额外底部间距，避免被固定输入区域遮挡 */
+    }
+    
+    /* 聊天输入区域 - 移动端优化，紧凑布局 */
+    .chat-input {
+        height: auto !important;
+        min-height: 60px !important;
+        max-height: 120px !important;
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 6px 10px 6px 10px !important; /* 减少上下内边距 */
+        background: var(--bg-secondary) !important;
+        border-top: 1px solid var(--border-color) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 4px !important; /* 减少间距 */
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        box-sizing: border-box !important;
+        z-index: 1000 !important;
+    }
+    
+    /* 全屏模式聊天输入框 - 移动端特殊处理，保持透明背景 */
+    #fullscreenChatInput.chat-input {
+        background: transparent !important;
+        border: none !important;
+        border-top: none !important;
+        position: fixed !important;
+        bottom: 80px !important;
+        width: 60% !important;
+        max-width: 500px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 2147483647 !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 10px !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 隐藏状态 - 最高优先级强制隐藏 */
+    #fullscreenChatInput.chat-input.hidden {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+        pointer-events: none !important;
+    }
+    
+    /* 全屏模式输入框内部元素 - 移动端透明背景 */
+    #fullscreenChatInput .input-wrapper {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    #fullscreenChatInput .buttons-container {
+        background: transparent !important;
+        border: none !important;
+        padding: 5px 0 !important;
+        margin: 0 !important;
+    }
+    
+    #fullscreenMessageInput {
+        background: transparent !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 20px !important;
+    }
+    
+    #fullscreenSendButton,
+    #fullscreenEmojiButton,
+    #fullscreenImageUploadButton,
+    #fullscreenAButton,
+    #fullscreenCloseChatButton {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    /* 聊天工具按钮区域 - 移动端优化 */
+    .chat-tools {
+        display: flex !important;
+        gap: 6px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+    
+    /* 聊天工具按钮 - 移动端优化，减小尺寸 */
+    .chat-tool-button {
+        width: 28px !important; /* 减小尺寸 */
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 4px !important; /* 减少内边距 */
+        margin: 0 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important; /* 减小字体 */
+        flex-shrink: 0 !important;
+    }
+    
+    /* 输入框和发送按钮容器 - 移动端优化 */
+    .input-wrapper {
+        flex: 1 !important;
+        display: flex !important;
+        gap: 6px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    
+    /* 消息输入框 - 移动端优化，减小高度 */
+    #messageInput {
+        flex: 1 !important;
+        height: 36px !important; /* 减小高度 */
+        padding: 6px 40px 6px 12px !important; /* 减少内边距 */
+        margin: 0 !important;
+        border-radius: 18px !important; /* 相应调整圆角 */
+        font-size: 16px !important;
+        border: 1px solid var(--border-color) !important;
+        background: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 发送按钮 - 移动端优化，减小高度 */
+    #sendButton {
+        height: 36px !important; /* 减小高度 */
+        padding: 0 15px !important; /* 减少内边距 */
+        margin: 0 !important;
+        border-radius: 18px !important; /* 相应调整圆角 */
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+        min-width: 60px !important; /* 减小最小宽度 */
+        flex-shrink: 0 !important;
+    }
+    
+    /* 视频控制按钮适配 */
+    .video-controls-container {
+        display: flex !important;
+        gap: 8px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        flex: 1 !important;
+    }
+    
+    /* 控制按钮 */
+    .control-button {
+        height: 36px !important;
+        padding: 8px 12px !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        border-radius: 18px !important;
+        white-space: nowrap !important;
+        min-width: auto !important;
+    }
+    
+    /* 移动端隐藏功能菜单按钮文字，只显示图标 */
+    #featureMenuButton span {
+        display: none !important;
+    }
+    
+    #featureMenuButton {
+        padding: 8px !important;
+        min-width: 36px !important;
+        width: 36px !important;
+    }
+    
+    /* 隐藏全屏模式按钮 */
+    #fullscreenWithChatButton {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    /* 准备按钮 */
+    .ready-button-container button {
+        height: 36px !important;
+        padding: 8px 12px !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        border-radius: 18px !important;
+        white-space: nowrap !important;
+    }
+    
+    /* 用户计数和房间名称 */
+    .user-count-box,
+    .room-name-box {
+        height: 36px !important;
+        padding: 8px 12px !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        border-radius: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+    }
+    
+    /* 网络状态按钮 - 移动端悬浮定位 */
+    .network-toggle-btn {
+        position: fixed !important;
+        z-index: 1001 !important;
+        display: flex !important;
+        width: 40px !important;
+        height: 40px !important;
+        bottom: 80px !important;
+        left: 20px !important;
+        font-size: 18px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 50% !important;
+        backdrop-filter: blur(5px) !important;
+    }
+    
+    /* 网络状态面板 - 移动端居中定位 */
+    .network-status {
+        position: fixed !important;
+        z-index: 1001 !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 280px !important;
+        max-width: 90vw !important;
+        background: rgba(0, 0, 0, 0.95) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    /* 网络状态弹窗关闭按钮 - 移动端样式 */
+    .close-network-status-btn {
+        position: absolute !important;
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: none !important;
+        color: #fff !important;
+        font-size: 14px !important;
+        cursor: pointer !important;
+        padding: 6px !important;
+        border-radius: 50% !important;
+        transition: all 0.2s ease !important;
+        width: 28px !important;
+        height: 28px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .close-network-status-btn:hover {
+        background: rgba(255, 107, 107, 0.2) !important;
+        color: #ff6b6b !important;
+        transform: translateY(-50%) scale(1.1) !important;
+    }
+    
+    .close-network-status-btn i {
+        font-size: 12px !important;
+    }
+    
+    /* 网络状态头部调整为相对定位 */
+    .network-status-header {
+        position: relative !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding-right: 40px !important;
+    }
+    
+    /* 房间图标按钮 - 移动端悬浮定位 */
+    .room-icon-button {
+        position: fixed !important;
+        z-index: 1001 !important;
+        display: flex !important;
+        width: 50px !important;
+        height: 50px !important;
+        bottom: 80px !important;
+        right: 20px !important;
+        font-size: 24px !important;
+        border-radius: 50% !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
+    }
+    
+    /* 视频播放器右上角在线人数 - 移动端优化 */
+    .video-user-count {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 100 !important;
+    }
+    
+    .video-user-count .user-count-box {
+        height: auto !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: white !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+        filter: brightness(0.5) !important; /* 亮度调整到50% */
+    }
+    
+    /* 视频播放器右上角房间名字 - 移动端优化 */
+    .video-user-count .video-room-name {
+        height: auto !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: white !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+        margin-right: 8px !important; /* 与在线人数的间距 */
+        min-width: auto !important;
+        width: auto !important;
+        filter: brightness(0.5) !important; /* 亮度调整到50% */
+    }
+    
+    /* 视频播放器右上角聊天功能按钮 - 移动端优化 */
+    .video-user-count .video-chat-function {
+        height: auto !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: white !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+        margin-right: 8px !important; /* 与房间名字的间距 */
+        min-width: auto !important;
+        width: auto !important;
+        filter: brightness(0.5) !important; /* 亮度调整到50% */
+    }
+    
+    .video-user-count .video-chat-function .chat-function-button {
+        background: transparent !important;
+        border: none !important;
+        color: white !important;
+        font-size: 16px !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .video-user-count .video-chat-function .chat-function-button i {
+        font-size: 18px !important;
+        filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)) brightness(0.5) !important; /* 亮度调整到50% */
+    }
+    
+    /* 视频播放器右边中间聊天功能按钮 - 移动端优化 */
+    /* 严格只在用户点击全屏按钮后的 page-fullscreen 模式下显示 */
+    .video-chat-button-right {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* 仅在全屏模式下显示 */
+    body.page-fullscreen .video-chat-button-right,
+    body.rotate-fullscreen-active .video-chat-button-right {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        width: auto !important;
+        overflow: visible !important;
+        position: absolute !important;
+        right: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 100 !important;
+    }
+    
+    .video-chat-function-right {
+        height: auto !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: white !important;
+        border: none !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+        margin: 0 !important;
+        min-width: auto !important;
+        width: auto !important;
+    }
+    
+    .video-chat-function-right .chat-function-button {
+        background: transparent !important;
+        border: none !important;
+        color: white !important;
+        font-size: 16px !important;
+        text-shadow: none !important; /* 移除阴影效果 */
+        padding: 0 !important;
+        margin: 0 !important;
+        transition: none !important; /* 移除过渡动画 */
+        transform: none !important; /* 移除变换效果 */
+    }
+    
+    .video-chat-function-right .chat-function-button i {
+        font-size: 18px !important;
+        filter: none !important; /* 移除图标阴影效果 */
+        transition: none !important; /* 移除图标动画 */
+        filter: brightness(0.5) !important; /* 亮度调整到50% */
+    }
+    
+    .video-user-count .video-room-name .room-name {
+        font-size: 14px !important;
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.8) !important;
+    }
+    
+    .video-user-count .video-room-name .room-name i {
+        font-size: 14px !important;
+        margin-right: 4px !important;
+    }
+    
+    .video-user-count .video-room-name .room-name i::after {
+        display: none !important; /* 隐藏冒号 */
+    }
+    
+    /* 移动端在线人数只显示图标和数字 */
+    .video-user-count .user-count-box #userCount {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        font-weight: 500 !important;
+    }
+    
+    .video-user-count .user-count-box #userCount::before {
+        content: '👥' !important;
+        margin-right: 0 !important;
+        font-size: 16px !important;
+        filter: drop-shadow(1px 1px 2px rgba(0,0,0,0.8)) !important;
+    }
+    
+    /* 消息气泡适配 */
+    .message {
+        margin: 1px 0 !important;
+        padding: 3px 8px !important;
+        max-width: 85% !important;
+        font-size: 12px !important;
+    }
+    
+    .message.own {
+        margin-left: auto !important;
+        margin-right: 0 !important;
+    }
+    
+    /* 用户头像适配 */
+    .message-avatar {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+    
+    /* 工具提示适配 */
+    .custom-tooltip {
+        display: none !important; /* 移动端隐藏工具提示 */
+    }
+    
+    /* 弹窗适配 */
+    .modal-content {
+        width: 90vw !important;
+        max-width: 90vw !important;
+        margin: 10% auto !important;
+        padding: 20px !important;
+    }
+    
+    /* A按钮弹窗适配 */
+    .a-button-popup {
+        width: 280px !important;
+        max-width: 280px !important;
+        /* 移除right和left定位，让JavaScript完全控制位置 */
+        /* right: 10px !important; */
+        /* left: auto !important; */
+        /* bottom: auto !important; 移除原来的calc定位 */
+        /* top: auto !important; 重置top属性 */
+        position: fixed !important; /* 使用fixed定位确保相对于视口 */
+        max-height: calc(100vh - 120px) !important; /* 限制最大高度，确保不超出视口 */
+        overflow-y: auto !important; /* 内容过多时允许滚动 */
+        -webkit-overflow-scrolling: touch !important; /* iOS平滑滚动 */
+    }
+    
+    /* 移动端全屏模式聊天设置弹窗优化 */
+    #fullscreenAButtonPopup {
+        /* 移动端优化：减小尺寸 */
+        width: 260px !important;
+        max-width: 260px !important;
+        max-height: 50vh !important; /* 限制高度为视口的一半 */
+        
+        /* 移动端定位：居中右移策略 */
+        position: fixed !important;
+        top: auto !important;
+        bottom: 80px !important; /* 从底部抬起，避免遮挡 */
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important; /* 水平居中 */
+        
+        /* 视觉优化 */
+        margin: 0 !important;
+        padding: 12px !important; /* 减小内边距 */
+        border-radius: 12px !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        
+        /* 确保在最上层 */
+        z-index: 2147483647 !important;
+        
+        /* 平滑过渡 */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        -webkit-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    
+    /* 全屏模式弹窗内容优化 */
+    #fullscreenAButtonPopup > div:first-child {
+        margin-bottom: 12px !important; /* 减小头部间距 */
+    }
+    
+    #fullscreenAButtonPopup h3 {
+        font-size: 14px !important; /* 增大标题字体 */
+        font-weight: 600 !important;
+    }
+    
+    /* 全屏模式表单元素优化 */
+    #fullscreenAButtonPopup label {
+        font-size: 11px !important; /* 减小标签字体 */
+        margin-bottom: 4px !important;
+    }
+    
+    #fullscreenAButtonPopup select,
+    #fullscreenAButtonPopup .custom-dropdown-options {
+        font-size: 11px !important;
+        padding: 5px !important; /* 减小内边距 */
+    }
+    
+    /* 全屏模式自定义下拉菜单 */
+    #fullscreenAButtonPopup .custom-dropdown-options {
+        max-height: 120px !important; /* 进一步限制下拉菜单高度 */
+        border-radius: 6px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* 小屏幕设备额外优化 */
+    @media screen and (max-width: 375px) {
+        #fullscreenAButtonPopup {
+            width: 240px !important;
+            max-width: 240px !important;
+            bottom: 70px !important; /* 更小屏幕时稍微抬高 */
+            padding: 10px !important;
+        }
+    }
+    
+    /* 横屏模式适配 */
+    @media screen and (orientation: landscape) and (max-width: 896px) {
+        #fullscreenAButtonPopup {
+            max-height: 40vh !important; /* 横屏时进一步限制高度 */
+            bottom: 60px !important;
+        }
+    }
+    
+    /* 自定义下拉菜单适配 */
+    .custom-dropdown-options {
+        max-height: 150px !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* 图片上传按钮 - 使用PC端原始样式，不做任何修改 */
+    /*
+    .chat-image-upload-btn {
+        width: 32px !important;
+        height: 32px !important;
+        right: 8px !important;
+    }
+    */
+    
+    /* 防止iOS双击缩放 */
+    * {
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+    }
+    
+    /* 移动端预加载页面强制显示 - 解决黑屏问题 */
+    #preloader {
+        background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%) !important;
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        z-index: 99999 !important; /* 确保在最高层 */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* 覆盖body.loaded对预加载页面的隐藏效果 */
+    body.loaded #preloader {
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: flex !important;
+    }
+    
+    /* 确保预加载页面所有子元素都显示 */
+    #preloader * {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* 确保body未加载完成时显示预加载页面 */
+    body:not(.loaded) #preloader {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* 优化滚动性能 */
+    .chat-messages,
+    .custom-dropdown-options {
+        -webkit-overflow-scrolling: touch !important;
+        scroll-behavior: smooth !important;
+    }
+    
+    /* 移动端全屏模式控制按钮样式 */
+    body.page-fullscreen .video-user-count,
+    body.page-fullscreen #rotateFullscreenExitBtn,
+    body.page-fullscreen .video-chat-button-right,
+    body.rotate-fullscreen-active .video-user-count,
+    body.rotate-fullscreen-active #rotateFullscreenExitBtn,
+    body.rotate-fullscreen-active .video-chat-button-right {
+        transition: opacity 300ms ease-in-out !important;
+        -webkit-transition: opacity 300ms ease-in-out !important;
+    }
+    
+    /* 默认隐藏移动端全屏控制按钮 */
+    #rotateFullscreenExitBtn {
+        display: none !important;
+    }
+    
+    /* 仅在全屏模式下显示退出按钮 */
+    body.page-fullscreen #rotateFullscreenExitBtn,
+    body.rotate-fullscreen-active #rotateFullscreenExitBtn {
+        display: block !important;
+    }
+    
+    /* 横屏模式适配 */
+    @media screen and (orientation: landscape) and (max-width: 896px) {
+        .video-section {
+            height: 40vh !important;
+            flex: 0 0 40vh !important;
+        }
+        
+        .chat-section {
+            height: 60vh !important;
+            flex: 0 0 60vh !important;
+        }
+        
+        .video-controls-container {
+            gap: 6px !important;
+        }
+        
+        .control-button {
+            padding: 6px 10px !important;
+            font-size: 11px !important;
+        }
+    }
+    
+    /* 小屏幕设备额外优化 */
+    @media screen and (max-width: 375px) {
+        .control-button {
+            padding: 6px 8px !important;
+            font-size: 11px !important;
+        }
+        
+        /*
+        .chat-tool-button {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 14px !important;
+        }
+        
+        #messageInput {
+            font-size: 14px !important;
+            padding: 6px 35px 6px 10px !important;
+        }
+        
+        #sendButton {
+            padding: 0 12px !important;
+            font-size: 13px !important;
+        }
+        */
+    }
+    
+    /* 防止系统UI遮挡 - 仅保留网络状态按钮和房间图标按钮的安全区域适配 */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        /*
+        .chat-input {
+            padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+        }
+        */
+        
+        .network-toggle-btn {
+            bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+        }
+        
+        .room-icon-button {
+            bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+        }
+    }
+    
+    /* 隐藏移动端模式下的网络检测按钮和房间图标按钮 */
+    .network-toggle-btn,
+    .room-icon-button {
+        display: none !important;
+    }
+}
+
+/* 平板设备特殊处理 */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+    /* 平板设备保持PC布局，但做一些微调 */
+    .main-container {
+        padding: 10px !important;
+    }
+    
+    .video-section {
+        flex: 1.2 !important; /* 视频区域稍大一些 */
+    }
+    
+    .chat-section {
+        flex: 0.8 !important; /* 聊天区域稍小一些 */
+    }
+}
+
+/* 移动端悬浮按钮 */
+.floating-action-btn {
+    position: fixed !important;
+    bottom: 80px !important;
+    right: 16px !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    cursor: pointer !important;
+    z-index: 1000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.floating-action-btn:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.floating-action-btn:active {
+    transform: scale(0.95) !important;
+}
+
+.floating-action-btn i {
+    color: white !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+}
+
+/* 深色模式下的悬浮按钮 */
+body.dark-theme .floating-action-btn {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-theme .floating-action-btn:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 横屏模式下的悬浮按钮位置调整 */
+@media screen and (orientation: landscape) and (max-width: 896px) {
+    .floating-action-btn {
+        bottom: 70px !important;
+        right: 12px !important;
+        width: 42px !important;
+        height: 42px !important;
+    }
+    
+    .floating-action-btn i {
+        font-size: 18px !important;
+    }
+}
+
+/* 小屏幕设备的悬浮按钮尺寸调整 */
+@media screen and (max-width: 375px) {
+    .floating-action-btn {
+        width: 44px !important;
+        height: 44px !important;
+        bottom: 75px !important;
+        right: 12px !important;
+    }
+    
+    .floating-action-btn i {
+        font-size: 18px !important;
+    }
+}
+
+/* 考虑安全区域的悬浮按钮位置 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .floating-action-btn {
+        bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    }
+    
+    @media screen and (orientation: landscape) and (max-width: 896px) {
+        .floating-action-btn {
+            bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+        }
+    }
+    
+    @media screen and (max-width: 375px) {
+        .floating-action-btn {
+            bottom: calc(75px + env(safe-area-inset-bottom)) !important;
+        }
+    }
+}
+
+/* 移动端视频选择弹窗样式 */
+.mobile-feature1-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+.mobile-feature1-content {
+    background-color: var(--bg-primary, #ffffff) !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+    width: 90vw !important;
+    max-width: 400px !important;
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+    position: relative !important;
+    animation: mobileModalSlideUp 0.3s ease-out !important;
+}
+
+.mobile-feature1-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid var(--border-color, #e0e0e0) !important;
+}
+
+.mobile-feature1-header-buttons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.mobile-feature1-local-header-btn {
+    background-color: var(--button-bg, #f5f5f5) !important;
+    color: var(--text-primary, #333333) !important;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+    border-radius: 6px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+}
+
+.mobile-feature1-local-header-btn:hover {
+    background-color: var(--hover-bg, #eeeeee) !important;
+    transform: translateY(-1px) !important;
+}
+
+.mobile-feature1-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary, #333333) !important;
+    margin: 0 !important;
+}
+
+.mobile-feature1-close {
+    background: none !important;
+    border: none !important;
+    font-size: 24px !important;
+    color: var(--text-secondary, #666666) !important;
+    cursor: pointer !important;
+    padding: 4px !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.mobile-feature1-close:hover {
+    background-color: var(--hover-bg, #f5f5f5) !important;
+    color: var(--text-primary, #333333) !important;
+}
+
+.mobile-feature1-body {
+    margin-bottom: 20px !important;
+}
+
+.mobile-feature1-input-group {
+    margin-bottom: 16px !important;
+}
+
+.mobile-feature1-label {
+    display: block !important;
+    margin-bottom: 8px !important;
+    font-size: 14px !important;
+    color: var(--text-primary, #333333) !important;
+    font-weight: 500 !important;
+}
+
+.mobile-feature1-input {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 2px solid var(--border-color, #e0e0e0) !important;
+    border-radius: 8px !important;
+    font-size: 16px !important;
+    background-color: var(--input-bg, #ffffff) !important;
+    color: var(--text-primary, #333333) !important;
+    transition: border-color 0.2s ease !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-feature1-input:focus {
+    outline: none !important;
+    border-color: var(--primary-color, #667eea) !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+}
+
+.mobile-feature1-buttons {
+    display: flex !important;
+    gap: 12px !important;
+    margin-top: 20px !important;
+}
+
+.mobile-feature1-button {
+    flex: 1 !important;
+    padding: 12px 16px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    min-height: 44px !important; /* 适合触摸的高度 */
+}
+
+.mobile-feature1-load-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+}
+
+.mobile-feature1-load-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+.mobile-feature1-share-btn {
+    background-color: var(--button-bg, #f5f5f5) !important;
+    color: var(--text-primary, #333333) !important;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+}
+
+.mobile-feature1-share-btn:hover {
+    background-color: var(--hover-bg, #eeeeee) !important;
+}
+
+.mobile-feature1-button:active {
+    transform: scale(0.98) !important;
+}
+
+/* 深色模式适配 */
+body.dark-theme .mobile-feature1-content {
+    background-color: var(--bg-primary, #1a1a1a) !important;
+    border-color: var(--border-color, #333333) !important;
+}
+
+body.dark-theme .mobile-feature1-title,
+body.dark-theme .mobile-feature1-label {
+    color: var(--text-primary, #ffffff) !important;
+}
+
+body.dark-theme .mobile-feature1-input {
+    background-color: var(--input-bg, #2d2d2d) !important;
+    border-color: var(--border-color, #444444) !important;
+    color: var(--text-primary, #ffffff) !important;
+}
+
+body.dark-theme .mobile-feature1-close {
+    color: var(--text-secondary, #cccccc) !important;
+}
+
+body.dark-theme .mobile-feature1-close:hover {
+    background-color: var(--hover-bg, #333333) !important;
+}
+
+body.dark-theme .mobile-feature1-local-header-btn {
+    background-color: var(--button-bg, #2d2d2d) !important;
+    color: var(--text-primary, #ffffff) !important;
+    border-color: var(--border-color, #444444) !important;
+}
+
+body.dark-theme .mobile-feature1-local-header-btn:hover {
+    background-color: var(--hover-bg, #3d3d3d) !important;
+}
+
+body.dark-theme .mobile-feature1-share-btn {
+    background-color: var(--button-bg, #2d2d2d) !important;
+    color: var(--text-primary, #ffffff) !important;
+    border-color: var(--border-color, #444444) !important;
+}
+
+body.dark-theme .mobile-feature1-share-btn:hover {
+    background-color: var(--hover-bg, #3d3d3d) !important;
+}
+
+/* 横屏模式下的弹窗样式调整 */
+@media screen and (orientation: landscape) and (max-width: 896px) {
+    .mobile-feature1-content {
+        width: 80vw !important;
+        max-height: 70vh !important;
+        padding: 20px !important;
+    }
+    
+    .mobile-feature1-title {
+        font-size: 16px !important;
+    }
+    
+    .mobile-feature1-buttons {
+        flex-direction: row !important;
+    }
+}
+
+/* 小屏幕设备的弹窗样式调整 */
+@media screen and (max-width: 375px) {
+    .mobile-feature1-content {
+        width: 95vw !important;
+        padding: 20px !important;
+    }
+    
+    .mobile-feature1-title {
+        font-size: 16px !important;
+    }
+    
+    .mobile-feature1-button {
+        font-size: 13px !important;
+        padding: 10px 12px !important;
+    }
+}
+
+/* 动画效果 */
+@keyframes mobileModalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 隐藏移动端弹窗 */
+.mobile-feature1-modal.hidden {
+    display: none !important;
+}
+
+/* 打印模式隐藏移动端弹窗 */
+@media print {
+    .mobile-feature1-modal {
+        display: none !important;
+    }
+}
+
+/* 移动端用户列表弹窗样式 - 与PC端完全一致 */
+.mobile-user-list-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    z-index: 2000 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+}
+
+.mobile-user-list-content {
+    background-color: var(--bg-secondary, #ffffff) !important;
+    border-radius: 12px !important;
+    width: 90vw !important;
+    max-width: 400px !important;
+    max-height: 80vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--border-color, #e0e0e0) !important;
+    overflow: hidden !important;
+}
+
+.mobile-user-list-header {
+    padding: 16px 20px !important;
+    border-bottom: 1px solid var(--border-color, #e0e0e0) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    background-color: var(--bg-primary, #f8f9fa) !important;
+}
+
+.mobile-user-list-title {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary, #333333) !important;
+    margin: 0 !important;
+}
+
+.mobile-user-list-close {
+    background: none !important;
+    border: none !important;
+    font-size: 24px !important;
+    color: var(--text-secondary, #666666) !important;
+    cursor: pointer !important;
+    padding: 4px !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.mobile-user-list-close:hover {
+    background-color: var(--hover-bg, #f5f5f5) !important;
+    color: var(--text-primary, #333333) !important;
+}
+
+.mobile-user-list-body {
+    flex: 1 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* 移动端用户列表容器 - 与PC端样式完全一致 */
+.mobile-user-list-container {
+    flex: 1 !important;
+    background-color: var(--bg-secondary, #ffffff) !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+}
+
+.mobile-user-list-container .user-list {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding: 12px !important;
+    margin: 0 !important;
+}
+
+.mobile-user-list-container .user-list ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+/* 移动端用户列表样式 - 与PC端保持一致 */
+.mobile-user-list-container .user-list-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 12px !important;
+    border-radius: 4px !important;
+    background-color: transparent !important;
+    border: none !important;
+    transition: none !important;
+    cursor: pointer !important;
+    min-height: 40px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    touch-action: manipulation !important; /* 允许触摸事件 */
+    -webkit-touch-callout: default !important; /* 允许触摸调出 */
+}
+
+.mobile-user-list-container .user-list-item:active {
+    background-color: var(--hover-bg, #f5f5f5) !important;
+}
+
+.mobile-user-list-container .user-info-left {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    height: 40px !important;
+}
+
+.mobile-user-list-container .user-status-icon {
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    flex-shrink: 0 !important;
+}
+
+.mobile-user-list-container .user-status-icon.not-ready {
+    background-color: #ff4444 !important;
+    color: white !important;
+}
+
+.mobile-user-list-container .user-status-icon.ready {
+    background-color: #00aa44 !important;
+    color: white !important;
+}
+
+.mobile-user-list-container .user-avatar {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background-color: #007bff;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-weight: bold !important;
+    font-size: 12px !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    margin: 0 !important;
+    border: 2px solid white !important;
+}
+
+.mobile-user-list-container .user-avatar img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+}
+
+.mobile-user-list-container .user-name {
+    display: flex !important;
+    align-items: center !important;
+    font-weight: 500 !important;
+    color: inherit !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 14px !important;
+    margin: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.mobile-user-list-container .user-name-text {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: inline-block !important;
+    word-break: keep-all !important;
+    min-width: 2em !important;
+}
+
+.mobile-user-list-container .user-ping {
+    font-size: 11px !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+    min-width: 35px !important;
+    text-align: right !important;
+    flex-shrink: 0 !important;
+    margin-left: 8px !important;
+}
+
+.mobile-user-list-container .user-badges {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+    margin-left: 5px !important;
+}
+
+.mobile-user-list-container .host-badge {
+    background-color: #e74c3c !important;
+    color: white !important;
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+    border-radius: 8px !important;
+    margin-left: 5px !important;
+    font-weight: normal !important;
+    flex-shrink: 0 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+}
+
+.mobile-user-list-container .current-user-badge {
+    background-color: #3498db !important;
+    color: white !important;
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+    border-radius: 8px !important;
+    margin-left: 5px !important;
+    font-weight: normal !important;
+    flex-shrink: 0 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+}
+
+/* 长按菜单样式 - 与PC端右键菜单一致 */
+.mobile-user-list-container .context-menu {
+    position: fixed !important;
+    background: white !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    z-index: 1000 !important;
+    min-width: 150px !important;
+    padding: 2px 0 !important;
+    display: none !important;
+}
+
+.mobile-user-list-container .context-menu-item {
+    padding: 8px 16px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    font-size: 14px !important;
+}
+
+.mobile-user-list-container .context-menu-item:hover {
+    background-color: #f5f5f5 !important;
+}
+
+.mobile-user-list-container .context-menu-item.disabled {
+    color: #ccc !important;
+    cursor: not-allowed !important;
+}
+
+.mobile-user-list-container .context-menu-item.disabled:hover {
+    background-color: transparent !important;
+}
+
+/* 深色模式下的长按菜单 */
+body.dark-theme .mobile-user-list-container .context-menu {
+    background-color: #333 !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme .mobile-user-list-container .context-menu-item:hover {
+    background-color: #444 !important;
+}
+
+/* 深色模式下的用户延迟显示 */
+body.dark-theme .mobile-user-list-container .user-ping {
+    color: #ccc !important;
+}
+
+body.dark-theme .mobile-user-list-container .host-badge {
+    background-color: #c0392b !important;
+}
+
+body.dark-theme .mobile-user-list-container .current-user-badge {
+    background-color: #2980b9 !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-avatar {
+    border-color: #333 !important;
+}
+
+/* 滚动条样式 - 与PC端一致 */
+.mobile-user-list-container .user-list::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.mobile-user-list-container .user-list::-webkit-scrollbar-track {
+    background: var(--bg-primary, #f1f1f1) !important;
+    border-radius: 3px !important;
+}
+
+.mobile-user-list-container .user-list::-webkit-scrollbar-thumb {
+    background: var(--border-color, #c1c1c1) !important;
+    border-radius: 3px !important;
+}
+
+.mobile-user-list-container .user-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary, #999999) !important;
+}
+
+/* 深色模式适配 - 与PC端完全一致 */
+body.dark-theme .mobile-user-list-content {
+    background-color: var(--bg-secondary, #1a1a1a) !important;
+    border-color: var(--border-color, #333333) !important;
+}
+
+body.dark-theme .mobile-user-list-header {
+    background-color: var(--bg-primary, #2d2d2d) !important;
+    border-color: var(--border-color, #333333) !important;
+}
+
+body.dark-theme .mobile-user-list-title {
+    color: var(--text-primary, #ffffff) !important;
+}
+
+body.dark-theme .mobile-user-list-close {
+    color: var(--text-secondary, #cccccc) !important;
+}
+
+body.dark-theme .mobile-user-list-close:hover {
+    background-color: var(--hover-bg, #333333) !important;
+    color: var(--text-primary, #ffffff) !important;
+}
+
+body.dark-theme .mobile-user-list-container {
+    background-color: var(--bg-secondary, #1a1a1a) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-list-item {
+    background-color: var(--bg-primary, #2d2d2d) !important;
+    border-color: var(--border-color, #333333) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-list-item:hover {
+    background-color: var(--hover-bg, #333333) !important;
+    border-color: var(--primary-color, #667eea) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-name {
+    color: var(--text-primary, #ffffff) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-status-icon {
+    border-color: var(--bg-secondary, #1a1a1a) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-avatar {
+    border-color: var(--bg-secondary, #1a1a1a) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-list::-webkit-scrollbar-track {
+    background: var(--bg-primary, #2d2d2d) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-list::-webkit-scrollbar-thumb {
+    background: var(--border-color, #444444) !important;
+}
+
+body.dark-theme .mobile-user-list-container .user-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary, #666666) !important;
+}
+
+/* 动画效果 */
+@keyframes mobileUserListSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.mobile-user-list-content {
+    animation: mobileUserListSlideUp 0.3s ease-out !important;
+}
+
+/* 隐藏移动端用户列表弹窗 */
+.mobile-user-list-modal.hidden {
+    display: none !important;
+}
+
+/* 打印模式隐藏移动端用户列表弹窗 */
+@media print {
+    .mobile-user-list-modal {
+        display: none !important;
+    }
+}
+
+/* 横屏模式下的用户列表弹窗样式调整 */
+@media screen and (orientation: landscape) and (max-width: 896px) {
+    .mobile-user-list-content {
+        width: 70vw !important;
+        max-height: 70vh !important;
+        max-width: 500px !important;
+    }
+}
+
+/* 小屏幕设备的用户列表弹窗样式调整 */
+@media screen and (max-width: 375px) {
+    .mobile-user-list-content {
+        width: 95vw !important;
+        padding: 0 !important;
+    }
+    
+    .mobile-user-list-header {
+        padding: 12px 16px !important;
+    }
+    
+    .mobile-user-list-title {
+        font-size: 16px !important;
+    }
+    
+    .mobile-user-list-container .user-list {
+        padding: 8px !important;
+    }
+    
+    .mobile-user-list-container .user-list-item {
+        padding: 10px !important;
+    }
+    
+    .mobile-user-list-container .user-avatar {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 12px !important;
+    }
+    
+    .mobile-user-list-container .user-name {
+        font-size: 13px !important;
+    }
+    
+    .mobile-user-list-container .user-ping {
+        font-size: 11px !important;
+        min-width: 35px !important;
+    }
+}
+
+/* 打印模式隐藏移动端样式 */
+@media print {
+    .mobile-only {
+        display: none !important;
+    }
+    
+    .floating-action-btn {
+        display: none !important;
+    }
+}
+
+/* 严格只在移动端用户点击全屏按钮后的 page-fullscreen 模式下显示聊天气泡按钮 */
+@media screen and (max-width: 768px) {
+    .page-fullscreen .video-chat-button-right {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        width: auto !important;
+        overflow: visible !important;
+        position: absolute !important;
+        right: 10px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 100 !important;
+    }
+}

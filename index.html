@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>同影</title>
+  <!--     // 简化的设备检测 - 仅PC模式 -->
+<script src="js/pc.js"></script>
+  <!-- 全局下拉菜单管理 -->
+  <script src="js/drop-menu.js"></script>
+  <!-- 全局控制台输出控制 -->
+  <script src="js/disable-console.js"></script>
+  <!-- 引入Font Awesome图标库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- 引入自定义按钮样式 -->
+  <link rel="stylesheet" href="css/custom-button-style.css">
+  <!-- 引入移动端适配样式（仅在移动设备生效） -->
+  <link rel="stylesheet" href="css/mobile/mobile-responsive.css">
+
+
+    <script src="js/extra/videoErrorHandler.js"></script>
+    <script src="js/special-notice.js"></script>
+    <script src="js/preloader.js"></script>
+</head>
+<body class="dark-theme">
+    <!-- 预加载界面 -->
+    <div id="preloader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%); z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease-out;">
+      <!-- 电影图标区域 -->
+      <div style="margin-bottom: 40px; animation: pulse 2s infinite;">
+        <i class="fas fa-film" style="font-size: 60px; color: #4ecdc4; text-shadow: 0 0 20px rgba(78, 220, 196, 0.5);"></i>
+        <i class="fas fa-play" style="font-size: 30px; color: #ff6b6b; margin-left: 20px; animation: bounce 1.5s infinite;"></i>
+        <i class="fas fa-tv" style="font-size: 40px; color: #ffa726; margin-left: 15px; animation: float 2.5s infinite;"></i>
+      </div>
+      
+      <!-- 加载文字 -->
+      <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 30px; font-weight: 300; letter-spacing: 2px;">
+        正在加载观影空间...
+      </h2>
+      
+      <!-- 进度条容器 -->
+      <div style="width: 300px; height: 4px; background-color: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; margin-bottom: 20px;">
+        <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #4ecdc4 0%, #44a08d 100%); transition: width 0.3s ease; box-shadow: 0 0 10px rgba(78, 220, 196, 0.5);"></div>
+      </div>
+      
+      <!-- 进度文字 -->
+      <p id="progressText" style="color: rgba(255, 255, 255, 0.7); font-size: 14px; margin-bottom: 10px;">准备中...</p>
+      
+      <!-- 加载动画小图标 -->
+      <div style="margin-top: 20px;">
+        <i class="fas fa-circle-notch fa-spin" style="color: #4ecdc4; font-size: 20px;"></i>
+      </div>
+    </div>
+    
+    <!-- 预加载动画样式 -->
+    <style>
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      
+      @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-5px) rotate(5deg); }
+      }
+      
+      @keyframes glow {
+        0%, 100% { text-shadow: 0 0 20px rgba(78, 220, 196, 0.5); }
+        50% { text-shadow: 0 0 30px rgba(78, 220, 196, 0.8); }
+      }
+      
+      @keyframes shimmer {
+        0% { background-position: -300px 0; }
+        100% { background-position: 300px 0; }
+      }
+      
+      #progressBar {
+        background: linear-gradient(90deg, #4ecdc4 0%, #44a08d 50%, #4ecdc4 100%);
+        background-size: 300px 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+      
+      /* 页面加载完成后的过渡效果 */
+      body.loaded #preloader {
+        opacity: 0;
+        visibility: hidden;
+      }
+      
+      body:not(.loaded) .main-container {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      
+      .main-container {
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+    </style>
+    
+    <!-- 特别提醒弹窗 -->
+    <div id="specialNoticeModal" class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+      <div class="modal-content" style="background-color: var(--bg-primary); padding: 30px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); max-width: 500px; width: 90%; border: 1px solid var(--border-color);">
+        <h2 style="color: var(--text-primary); margin-bottom: 20px; text-align: center; font-size: 24px;">
+          <i class="fas fa-exclamation-triangle" style="color: #ff6b6b; margin-right: 10px;"></i>
+          特别提醒
+        </h2>
+        
+        <div style="color: var(--text-primary); line-height: 1.6; margin-bottom: 25px;">
+          <h3 style="color: var(--text-primary); margin-bottom: 15px; font-size: 18px;">视频链接支持说明：</h3>
+          <ul style="margin-left: 20px; margin-bottom: 20px;">
+            <li><strong>MP4直连</strong> - 直接支持标准的MP4格式视频链接</li>
+            <li><strong>M3U8直连</strong> - 支持HLS流媒体格式（m3u8文件）</li>
+            <li><strong>抖音解析链接</strong> - 支持抖音视频解析后的直连链接</li>
+            <li><strong>B站解析链接</strong> - 支持B站视频解析后的直连链接</li>
+          </ul>
+          
+          <h3 style="color: var(--text-primary); margin-bottom: 15px; font-size: 18px;">聊天快捷键：</h3>
+          <p style="margin-bottom: 15px;">
+            <i class="fas fa-keyboard" style="color: #4ecdc4; margin-right: 8px;"></i>
+            在进入全屏或页面全屏模式时，按 <strong>回车键</strong> 可以快速打开聊天输入框
+          </p>
+        </div>
+        
+        <!-- 不再显示勾选框 -->
+        <div style="margin-bottom: 20px; display: flex; align-items: center;">
+          <input type="checkbox" id="dontShowAgain" style="margin-right: 10px; width: 16px; height: 16px; cursor: pointer;">
+          <label for="dontShowAgain" style="color: var(--text-primary); cursor: pointer; font-size: 14px;">
+            不再显示此提醒
+          </label>
+        </div>
+        
+        <button id="closeNoticeBtn" class="control-button" style="width: 100%; padding: 12px; font-size: 16px; background-color: #4ecdc4; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;">
+          <i class="fas fa-check" style="margin-right: 8px;"></i>
+          我已了解，进入房间
+        </button>
+      </div>
+    </div>
+
+  <div id="status" class="status" style="display: none;"></div>
+  <!-- 网络状态切换按钮 -->
+  <button id="networkToggleBtn" class="network-toggle-btn" title="显示/隐藏网络状态">
+    <i class="fas fa-wifi"></i>
+  </button>
+  <!-- 网络状态显示器 -->
+  <div id="networkStatus" class="network-status hidden">
+    <div class="network-status-header">
+      🌐 网络状态
+      <button id="closeNetworkStatus" class="close-network-status-btn" title="关闭">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="network-status-item">
+      <span>📶 连接质量:</span>
+      <span id="networkQuality" class="network-quality-excellent">优秀</span>
+    </div>
+    <div class="network-status-item">
+      <span>⏱️ 延迟:</span>
+      <span id="networkRtt">--ms</span>
+    </div>
+    <div class="network-status-item">
+      <span>🔄 同步间隔:</span>
+      <span id="syncInterval">10s</span>
+    </div>
+    <div class="network-status-item">
+      <span>🎯 同步阈值:</span>
+      <span id="syncThreshold">2.0s</span>
+    </div>
+  </div>
+  <div class="main-container">
+    <!-- 视频和聊天区域的父容器 -->
+    <div class="video-chat-container">
+      <!-- 左侧视频区域 -->
+      <div class="video-section">
+        <div class="video-container" id="videoContainer">
+            <!-- 原生HTML5视频播放器 -->
+            <video id="videoPlayer" controls style="width: 100%; border-radius: 8px;">
+                <!-- 视频源将由JavaScript动态加载 -->
+                您的浏览器不支持HTML5视频播放
+            </video>
+            
+            <!-- 在线人数和房间名字显示 - 移动到视频播放器右上角 -->
+            <div class="video-user-count" style="position: absolute; top: 10px; right: 10px; z-index: 100;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- 房间名字按钮 -->
+                    <div class="room-name-box video-room-name">
+                        <span class="room-name"><i class="fas fa-home"></i> <span id="currentRoomName"></span></span>
+                    </div>
+                    <!-- 在线人数 -->
+                    <div class="user-count-box">
+                        <span id="userCount">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 聊天功能按钮 - 移动到视频播放器右边中间位置 -->
+            <div class="video-chat-button-right" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 100;">
+                <div class="chat-function-box video-chat-function-right">
+                    <button id="chatFunctionButton" class="chat-function-button">
+                        <i class="fas fa-comment-dots"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- 视频底部横条容器 -->
+        <div id="videoBottomBar">
+          <!-- 视频右下角控制区 - 包含在线人数、房间名字和准备按钮 -->
+            <div class="video-controls-container">
+              <!-- 第1个（最右）：准备状态按钮 -->
+              <div class="tooltip-wrapper">
+                <div class="ready-button-container">
+                  <button id="readyButton"><i class="fas fa-circle"></i> 准备</button>
+                </div>
+                <span class="custom-tooltip">准备/取消准备</span>
+              </div>
+              <!-- 隐藏的文件输入框 -->
+              <input type="file" id="localVideoInput" accept="video/*">
+              <!-- 第2个：页面全屏按钮 -->
+              <div class="tooltip-wrapper">
+                <button id="fullscreenButton" class="control-button">
+                  <i class="fas fa-expand"></i>
+                  <span>页面全屏</span>
+                </button>
+                <span class="custom-tooltip">切换视频页面全屏模式（占满浏览器窗口）</span>
+              </div>
+              <!-- 第3个：浏览器全屏按钮 -->
+              <div class="tooltip-wrapper">
+                <button id="fullscreenWithChatButton" class="control-button">
+                  <i class="fas fa-expand-alt"></i>
+                  <span>全屏模式</span>
+                </button>
+                <span class="custom-tooltip">切换视频浏览器全屏模式（占满整个屏幕）</span>
+              </div>
+              <!-- 第4个：房间名字按钮 - 已移动到右上角 -->
+              <!-- <div class="tooltip-wrapper">
+                <div class="room-name-box">
+                  <span class="room-name"><i class="fas fa-home"></i> <span id="currentRoomName"></span></span>
+                </div>
+                <span class="custom-tooltip">当前房间名称</span>
+              </div> -->
+              <!-- 第6个：退出房间按钮 -->
+              <div class="tooltip-wrapper">
+                <button id="exitRoomButton" class="control-button">
+                  <i class="fas fa-sign-out-alt"></i>
+                  <span>退出房间</span>
+                </button>
+                <span class="custom-tooltip">退出当前房间</span>
+              </div>
+              <!-- 第5个：小房子按钮 -->
+              <div class="tooltip-wrapper">
+                <button id="homeButton" class="control-button">
+                  <i class="fas fa-home"></i>
+                </button>
+                <span class="custom-tooltip">首页</span>
+              </div>
+              <!-- 第7个：功能菜单按钮 -->
+              <div class="tooltip-wrapper">
+                <button id="featureMenuButton" class="control-button">
+                  <i class="fas fa-bars"></i>
+                  <span>功能菜单</span>
+                </button>
+                <span class="custom-tooltip">展开功能菜单</span>
+              </div>
+              <!-- 功能菜单展开的按钮容器 -->
+              <div id="featureMenuContainer" class="feature-menu-container" style="display: none;">
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="1">
+                    <i class="fas fa-cog"></i>
+                    <span>视频选择</span>
+                  </button>
+                  <span class="custom-tooltip">视频选择</span>
+                </div>
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="2">
+                    <i class="fas fa-star"></i>
+                    <span>用户列表</span>
+                  </button>
+                  <span class="custom-tooltip">用户列表</span>
+                </div>
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="3">
+                    <i class="fas fa-heart"></i>
+                    <span>网络检测</span>
+                  </button>
+                  <span class="custom-tooltip">网络检测</span>
+                </div>
+                <div class="tooltip-wrapper">
+                  <button class="control-button feature-menu-item" data-feature="4">
+                    <i class="fas fa-bell"></i>
+                    <span>主题切换</span>
+                  </button>
+                  <span class="custom-tooltip">主题切换</span>
+                </div>
+              </div>
+
+          </div>
+          <!-- 左侧按钮容器和输入网址容器 -->
+        <div style="display: flex; gap: 5px; align-items: center; width: 100%; justify-content: flex-end; margin-top: 5px;">
+            <!-- 新容器 - 包含暗色模式和本地视频按钮 -->
+            <div class="left-controls-container" style="display: flex; gap: 8px; align-items: center; white-space: nowrap; margin-right: 0;">
+              <!-- 暗色模式按钮（左边）-->
+              <div class="tooltip-wrapper">
+                <button id="themeToggle" class="control-button">
+                  <i class="fas fa-moon"></i>
+                  <span>暗色模式</span>
+                </button>
+                <span class="custom-tooltip">切换深色/浅色模式</span>
+              </div>
+              <!-- 本地视频按钮（右边）-->
+              <div class="tooltip-wrapper">
+                <button id="localVideoButton" class="control-button">
+                  <i class="fas fa-film"></i>
+                  <span>本地视频</span>
+                </button>
+                <span class="custom-tooltip">上传本地视频文件</span>
+              </div>
+            </div>
+            <!-- 输入网址容器 - 与新容器紧密相邻 -->
+            <div class="video-url-container" style="flex: 0 0 auto; margin: 0 0 0 10px; min-width: 460px;">
+              <div style="position: relative; flex: 1;">
+                <input type="text" id="videoUrlInput" placeholder="输入网络视频链接" class="video-url-input">
+                <button id="clearUrlButton" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: transparent; border: none; font-size: 12px; color: var(--text-secondary); cursor: pointer; display: none; z-index: 2; padding: 0; margin: 0; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 50%; opacity: 0.7;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <button id="loadUrlButton" class="control-button">
+                <i class="fas fa-download"></i>
+                <span>加载</span>
+              </button>
+              <button id="shareButton" class="control-button">
+                <i class="fas fa-share-alt"></i>
+                <span>共享</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 仅使用PC端按钮 - 移动端已完全移除 -->
+      <!-- 右侧聊天区域 -->
+      <div class="chat-section">
+        <!-- 聊天窗口 - 移除头部用户列表 -->
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input">
+              <!-- 表情和聊天设置按钮 -->
+              <div class="chat-tools">
+                <button id="emojiButton" class="chat-tool-button" title="选择表情"><i class="far fa-smile"></i></button>
+                <!-- 添加工具按钮 -->
+                <button id="toolsButton" class="chat-tool-button" title="工具"><i class="fas fa-tools"></i></button>
+                <!-- 添加语音通话按钮 -->
+                <button id="voiceCallButton" class="chat-tool-button" title="语音通话"><i class="fas fa-phone"></i></button>
+                <!-- 添加新的A按钮 -->
+                <button id="aButton" class="chat-tool-button a-button" title="聊天设置"><span style="font-weight: bold; font-size: 18px;">A</span></button>
+                <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+              </div>
+              <!-- A按钮的小弹窗 -->
+              <div id="aButtonPopup" class="a-button-popup" style="display: none; position: absolute; bottom: 100%; left: auto; right: 10px; margin-bottom: 10px; padding: 15px; background-color: var(--popup-bg); border: 1px solid var(--popup-border); border-radius: 8px; box-shadow: var(--popup-shadow); z-index: 1000; min-width: 240px; max-width: calc(100vw - 40px); transform: scale(0.8); transform-origin: bottom right;">
+                <!-- 弹窗头部 -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 12.8px; color: var(--popup-text);">聊天设置</h3>
+                    <button id="closeAPopupButton" style="background: none; border: none; cursor: pointer; font-size: 14.4px; color: var(--popup-text); padding: 0;">×</button>
+                  </div>
+                <!-- 文字大小和颜色设置 - 并列显示 -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                  <!-- 文字大小设置 - 自定义下拉菜单 -->
+                  <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 10.4px; color: var(--popup-text);">文字大小</label>
+                    <!-- 隐藏原始的select元素，但保留功能 -->
+                    <select id="fontSizeSelect" style="display: none;">
+                      <option value="10">超小号 (10px)</option>
+                      <option value="12">小号 (12px)</option>
+                      <option value="14" selected>中号 (14px)</option>
+                      <option value="16">大号 (16px)</option>
+                      <option value="18">超大号 (18px)</option>
+                      <option value="20">特大号 (20px)</option>
+                    </select>
+                    <!-- 自定义下拉菜单容器 -->
+                    <div id="customFontSizeSelect" style="position: relative; width: 100%;">
+                      <!-- 下拉菜单按钮 -->
+                      <div id="fontSizeButton" style="width: 100%; padding: 6px; border: 1px solid var(--popup-border); border-radius: 4px; font-size: 10.4px; background-color: var(--popup-input-bg); color: var(--popup-text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="fontSizeValue">中号 (14px)</span>
+                        <span style="font-size: 8px;">▼</span>
+                      </div>
+                      <!-- 下拉菜单选项列表 -->
+                      <div id="fontSizeOptions" class="custom-dropdown-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 2px; border: 1px solid var(--popup-border); border-radius: 4px; background-color: var(--popup-bg); max-height: 200px; overflow-y: auto; z-index: 1000;">
+                        <div data-value="10" class="custom-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">超小号 (10px)</div>
+                        <div data-value="12" class="custom-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">小号 (12px)</div>
+                        <div data-value="14" class="custom-option selected" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px; background-color: var(--popup-hover-bg);">中号 (14px)</div>
+                        <div data-value="16" class="custom-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">大号 (16px)</div>
+                        <div data-value="18" class="custom-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">超大号 (18px)</div>
+                        <div data-value="20" class="custom-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">特大号 (20px)</div>
+                      </div>
+                    </div>
+                  </div>
+                 <!-- 文字大小 - 自定义下拉菜单 -->
+                 <script src="js/text-size.js"></script> 
+                  <!-- 文字颜色设置 - 自定义下拉菜单 -->
+                  <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 10.4px; color: var(--popup-text);">文字颜色</label>
+                    <!-- 隐藏原始的select元素，但保留功能 -->
+                    <select id="fontColorSelect" style="display: none;">
+                      <option value="#000000" selected>黑色</option>
+                      <option value="#ffffff">白色</option>
+                      <option value="#007bff">蓝色</option>
+                      <option value="#28a745">绿色</option>
+                      <option value="#dc3545">红色</option>
+                      <option value="#ffc107">黄色</option>
+                      <option value="#6c757d">灰色</option>
+                    </select>
+                    <!-- 自定义下拉菜单容器 -->
+                    <div id="customFontColorSelect" style="position: relative; width: 100%;">
+                      <!-- 下拉菜单按钮 -->
+                      <div id="fontColorButton" style="width: 100%; padding: 6px; border: 1px solid var(--popup-border); border-radius: 4px; font-size: 10.4px; background-color: var(--popup-input-bg); color: var(--popup-text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="fontColorValue">黑色</span>
+                        <span style="font-size: 8px;">▼</span>
+                      </div>
+                      <!-- 下拉菜单选项列表 -->
+                      <div id="fontColorOptions" class="custom-dropdown-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 2px; border: 1px solid var(--popup-border); border-radius: 4px; background-color: var(--popup-bg); max-height: 200px; overflow-y: auto; z-index: 1000;">
+                        <div data-value="#000000" class="color-option selected" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px; background-color: var(--popup-hover-bg);">黑色</div>
+                        <div data-value="#ffffff" class="color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">白色</div>
+                        <div data-value="#007bff" class="color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">蓝色</div>
+                        <div data-value="#28a745" class="color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">绿色</div>
+                        <div data-value="#dc3545" class="color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">红色</div>
+                        <div data-value="#ffc107" class="color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">黄色</div>
+                        <div data-value="#6c757d" class="color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">灰色</div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 文字颜色自定义下拉菜单的JavaScript代码 -->
+                 <script src="js/text-color.js"></script> 
+                </div>
+                <!-- 聊天气泡显示和颜色设置 - 并列显示 -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                  <!-- 聊天气泡显示设置 - 自定义下拉菜单 -->
+                  <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 10.4px; color: var(--popup-text);">聊天气泡显示</label>
+                    <!-- 隐藏原始的select元素，但保留功能 -->
+                    <select id="bubbleDisplaySelect" style="display: none;">
+                      <option value="show" selected>显示</option>
+                      <option value="hide">隐藏</option>
+                    </select>
+                    <!-- 自定义下拉菜单容器 -->
+                    <div id="customBubbleDisplaySelect" style="position: relative; width: 100%;">
+                      <!-- 下拉菜单按钮 -->
+                      <div id="bubbleDisplayButton" style="width: 100%; padding: 6px; border: 1px solid var(--popup-border); border-radius: 4px; font-size: 10.4px; background-color: var(--popup-input-bg); color: var(--popup-text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="bubbleDisplayValue">显示</span>
+                        <span style="font-size: 8px;">▼</span>
+                      </div>
+                      <!-- 下拉菜单选项列表 -->
+                      <div id="bubbleDisplayOptions" class="custom-dropdown-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 2px; border: 1px solid var(--popup-border); border-radius: 4px; background-color: var(--popup-bg); max-height: 200px; overflow-y: auto; z-index: 1000;">
+                        <div data-value="show" class="bubble-display-option selected" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px; background-color: var(--popup-hover-bg);">显示</div>
+                        <div data-value="hide" class="bubble-display-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">隐藏</div>
+                      </div>
+                    </div>
+                  </div>
+                  <!--  聊天气泡显示自定义下拉菜单的JavaScript代码 -->
+                  <script src="js/chat-bubble-display.js"></script>
+                  <!-- 聊天气泡颜色设置 - 自定义下拉菜单 -->
+                  <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-size: 10.4px; color: var(--popup-text);">聊天气泡颜色</label>
+                    <!-- 隐藏原始的select元素，但保留功能 -->
+                    <select id="bubbleColorSelect" style="display: none;">
+                      <option value="#666666" data-own-color="#666666" selected>默认灰色</option>
+                      <option value="#e3f2fd" data-own-color="#90caf9">蓝色系列</option>
+                      <option value="#fff3e0" data-own-color="#ffcc80">橙色系列</option>
+                      <option value="#f3e5f5" data-own-color="#ce93d8">紫色系列</option>
+                      <option value="#e8f5e9" data-own-color="#a5d6a7">浅绿色系列</option>
+                    </select>
+                    <!-- 自定义下拉菜单容器 -->
+                    <div id="customBubbleColorSelect" style="position: relative; width: 100%;">
+                      <!-- 下拉菜单按钮 -->
+                      <div id="bubbleColorButton" style="width: 100%; padding: 6px; border: 1px solid var(--popup-border); border-radius: 4px; font-size: 10.4px; background-color: var(--popup-input-bg); color: var(--popup-text); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="bubbleColorValue">默认灰色</span>
+                        <span style="font-size: 8px;">▼</span>
+                      </div>
+                      <!-- 下拉菜单选项列表 -->
+                      <div id="bubbleColorOptions" class="custom-dropdown-options" style="display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 2px; border: 1px solid var(--popup-border); border-radius: 4px; background-color: var(--popup-bg); max-height: 200px; overflow-y: auto; z-index: 1000;">
+                        <div data-value="#666666" data-own-color="#666666" class="bubble-color-option selected" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px; background-color: var(--popup-hover-bg);">默认灰色</div>
+                        <div data-value="#e3f2fd" data-own-color="#90caf9" class="bubble-color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">蓝色系列</div>
+                        <div data-value="#fff3e0" data-own-color="#ffcc80" class="bubble-color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">橙色系列</div>
+                        <div data-value="#f3e5f5" data-own-color="#ce93d8" class="bubble-color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">紫色系列</div>
+                        <div data-value="#e8f5e9" data-own-color="#a5d6a7" class="bubble-color-option" style="padding: 6px; cursor: pointer; color: var(--popup-text); font-size: 10.4px;">浅绿色系列</div>
+                      </div>
+                    </div>
+                  </div>
+          <!--  聊天气泡颜色自定义下拉菜单的JavaScript代码 -->
+<script src="js/chat-bubble-color.js"></script>
+                </div>
+                <!-- 按钮区域 -->
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                  <button id="resetButton" style="padding: 8px 16px; background-color: #6c757d; color: var(--popup-text); border: none; border-radius: 4px; cursor: pointer; font-size: 11.2px;">恢复默认</button>
+                </div>
+              </div>
+              <!-- 增长输入框长度到发送按钮旁边 -->
+              <div class="input-wrapper">
+                <div style="position: relative; flex: 1;">
+                  <input type="text" id="messageInput" placeholder="输入消息..." style="width: 100%; padding-right: 54px;">
+                  <button id="imageUploadButton" class="chat-image-upload-btn" title="上传图片" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); z-index: 2; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; background: transparent !important;">
+                    <i class="fas fa-image" style="font-size: 12px; color: #999 !important;"></i>
+                  </button>
+                </div>
+                <button id="sendButton">发送</button>
+              </div>
+            </div>
+        </div>
+        <!-- 独立的用户列表容器 - 大屏幕显示，小屏幕隐藏 -->
+        <div class="user-list-container">
+          <div class="user-list" id="chatUserList">
+            <ul id="usersList"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 右下角房间图标按钮 - 始终显示，支持房间切换 -->
+    <button id="roomIconButton" class="room-icon-button" style="display: flex;">
+      <i class="fas fa-home"></i>
+    </button>
+  <!-- 房间创建/加入弹窗 -->
+  <div class="modal" id="roomModal" style="display: none;">
+    <div class="modal-wrapper">
+      <!-- 左侧：创建/加入房间表单 -->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>创建或加入房间</h2>
+          <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" placeholder="请输入您的用户名">
+        </div>
+        <div class="form-group">
+          <label for="roomName">房间名称</label>
+          <input type="text" id="roomName" placeholder="请输入房间名称">
+        </div>
+        <div class="form-group">
+          <label for="roomPassword">房间密码 (可选)</label>
+          <input type="password" id="roomPassword" placeholder="请输入房间密码（可选）">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="btnCreate">创建房间</button>
+          <button class="btn btn-secondary" id="btnJoin">加入房间</button>
+        </div>
+        <!-- 错误消息提示区域 -->
+        <div id="errorMessage" class="error-message" style="display: none; color: red; text-align: center; margin-top: 10px;"></div>
+      </div>
+      <!-- 右侧：在线房间列表 -->
+      <div class="room-list-panel">
+        <div class="modal-header">
+          <h2>🏠 在线房间</h2>
+          <button id="refreshRoomListBtn" class="refresh-btn" title="刷新房间列表">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+        <div id="roomList" class="room-list">
+          <div class="room-list-loading">
+            <i class="fas fa-spinner fa-spin"></i> 加载中...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 加入房间子弹窗 -->
+  <div class="modal" id="joinRoomModal" style="display: none;">
+    <div class="modal-content join-room-modal">
+      <div class="modal-header">
+        <h2>加入房间</h2>
+        <button class="close-btn" onclick="closeJoinRoomModal()">&times;</button>
+      </div>
+      <div class="join-room-info">
+        <div class="selected-room-display">
+          <i class="fas fa-home"></i>
+          <span id="selectedRoomName">房间名称</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="joinUsername">用户名</label>
+        <input type="text" id="joinUsername" placeholder="请输入您的用户名">
+      </div>
+      <div class="form-group">
+        <label for="joinRoomPassword">房间密码</label>
+        <input type="password" id="joinRoomPassword" placeholder="请输入房间密码">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="closeJoinRoomModal()">取消</button>
+        <button class="btn btn-primary" id="btnConfirmJoin">加入</button>
+      </div>
+      <!-- 错误消息提示区域 -->
+      <div id="joinErrorMessage" class="error-message" style="display: none; color: red; text-align: center; margin-top: 10px;"></div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- 引入HLS库，用于支持m3u8格式视频 -->
+  <script>
+    // HLS.js CDN 智能切换加载
+    (function() {
+      // CDN列表，按优先级排序
+      const cdnList = [
+        // 主要CDN：unpkg (npm官方，最稳定)
+        'https://unpkg.com/hls.js@1.4.12/dist/hls.min.js',
+        // 备用CDN1：cdnjs (Cloudflare全球CDN)
+        'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js',
+        // 备用CDN2：百度静态资源库 (国内访问快)
+        'https://code.bdstatic.com/npm/hls.js@1.4.12/dist/hls.min.js',
+        // 备用CDN3：又拍云CDN
+        'https://cdn.bootcdn.net/ajax/libs/hls.js/1.4.12/hls.min.js'
+      ];
+      
+      let currentIndex = 0;
+      
+      function loadScript(url, callback, onError) {
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.async = true;
+        script.src = url;
+        
+        script.onload = function() {
+          console.log('✅ HLS.js 加载成功：' + url);
+          if (callback) callback();
+        };
+        
+        script.onerror = function() {
+          console.warn('❌ HLS.js 加载失败：' + url);
+          if (onError) onError();
+        };
+        
+        document.head.appendChild(script);
+      }
+      
+      function tryNextCDN() {
+        if (currentIndex < cdnList.length) {
+          const currentUrl = cdnList[currentIndex];
+          console.log('🔄 尝试加载HLS.js：' + currentUrl);
+          
+          loadScript(currentUrl, null, function() {
+            currentIndex++;
+            if (currentIndex < cdnList.length) {
+              console.log('🔄 切换到备用CDN #' + currentIndex);
+              tryNextCDN();
+            } else {
+              console.error('❌ 所有HLS.js CDN都加载失败，M3U8视频播放功能将不可用');
+            }
+          });
+        }
+      }
+      
+      // 开始加载
+      tryNextCDN();
+    })();
+  </script>
+           <!--   在本地测试时连接到本地服务器 -->
+             <script src="js/server-file-testing.js"></script>
+<!-- 退出房间确认弹窗 -->
+  <div id="exitConfirmModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px;">
+      <div class="modal-header" style="padding: 10px 0; border-bottom: 1px solid #eee;">
+        <h2 style="margin: 0;">确认退出</h2>
+      </div>
+      <div class="modal-body" style="padding: 20px 0;">
+        <p>您确认要退出房间吗？</p>
+      </div>
+      <div class="modal-footer" style="padding: 10px 0; text-align: right;">
+        <button id="cancelExit" style="background-color: #6c757d; color: white; border: none; padding: 8px 16px; margin-right: 10px; border-radius: 4px; cursor: pointer;">取消</button>
+        <button id="confirmExit" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">继续</button>
+      </div>
+    </div>
+  </div>
+  <!-- 共享链接确认弹窗 -->
+  <div id="shareConfirmModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 400px; border-radius: 8px;">
+      <div class="modal-header" style="padding: 10px 0; border-bottom: 1px solid #eee;">
+        <h2 style="margin: 0;">共享链接</h2>
+      </div>
+      <div class="modal-body" style="padding: 20px 0;">
+        <p>是否将此链接共享给房间内的所有人？</p>
+      </div>
+      <div class="modal-footer" style="padding: 10px 0; text-align: right;">
+        <button id="cancelShare" style="background-color: #6c757d; color: white; border: none; padding: 8px 16px; margin-right: 10px; border-radius: 4px; cursor: pointer;">取消</button>
+        <button id="confirmShare" style="background-color: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">确认共享</button>
+      </div>
+    </div>
+  </div> 
+  <!-- 弹窗基础样式 -->
+  <link rel="stylesheet" href="css/popup-style.css">
+  <!-- 处理点击事件的JavaScript代码 -->
+<script src="js/handle-click-event.js"></script>
+<script src="js/extra/notification-system.js"></script>
+
+  <!-- 功能菜单交互逻辑 -->
+  <script src="js/feature-menu.js"></script>
+  
+  <!-- 移动端适配检测和初始化 -->
+  <script src="js/mobile/mobile-adapter.js"></script>
+  <!-- 智能UI控制 - PC模式视频播放器按钮和显示人数按钮交互效果 -->
+  <script src="js/smart-ui-controls.js"></script>
+  <!-- 移动端全屏控制 - 移动端全屏模式下类似HTML5视频控制条的智能隐藏功能 -->
+  <script src="js/mobile-fullscreen-controls.js"></script>
+  </body>
+</html>
