@@ -1236,5 +1236,29 @@ app.use('/js', express.static(__dirname + '/js', {
 }));
 const port = process.env.PORT || process.argv[2] || 3000;
 server.listen(port, () => {
-  console.log(`服务器运行在 http://localhost:${port}`);
+  // 获取实际的服务器地址
+  const os = require('os');
+  const interfaces = os.networkInterfaces();
+  let serverUrl = `http://localhost:${port}`;
+  
+  // 尝试获取局域网IP地址
+  for (let devName in interfaces) {
+    const iface = interfaces[devName];
+    for (let i = 0; i < iface.length; i++) {
+      const alias = iface[i];
+      if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+        serverUrl = `http://${alias.address}:${port}`;
+        break;
+      }
+    }
+  }
+  
+  // 如果有环境变量指定了外部地址，使用它
+  if (process.env.SERVER_URL) {
+    serverUrl = process.env.SERVER_URL;
+  }
+  
+  console.log(`服务器运行在 ${serverUrl}`);
+  console.log(`端口: ${port}`);
+  console.log(`环境: ${process.env.NODE_ENV || 'development'}`);
 });
