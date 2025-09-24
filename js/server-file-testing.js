@@ -6,7 +6,8 @@
         
         // 如果是本地访问，使用本地服务器
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-          return 'http://localhost:3000';
+          // 优先使用3001端口（当前运行的端口）
+          return 'http://localhost:3001';
         }
         
         // 如果是生产环境，使用当前域名（你的服务器地址）
