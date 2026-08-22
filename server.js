@@ -1234,7 +1234,7 @@ app.use('/js', express.static(__dirname + '/js', {
   maxAge: '1h', // JS文件缓存1小时  
   etag: true
 }));
-const port = process.argv[2] || 3000;
+const port = process.env.PORT || process.argv[2] || 3000;
 server.listen(port, () => {
   console.log(`服务器运行在 http://localhost:${port}`);
 });
