@@ -1,5 +1,5 @@
-// 连接到远程服务器
-      const socket = io('https://moviesyncserver2-3fw3q1ue.b4a.run', {
+// 在本地测试时连接到本地服务器
+      const socket = io('http://localhost:3000', {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数
@@ -142,8 +142,8 @@
         // 发送ping测试
         socket.emit('network_ping', { timestamp: startTime });
         
-        // 设置超时检测 - 远程服务器使用标准超时时间
-        const timeoutDuration = 3000;
+        // 设置超时检测 - 本地服务器用更长的超时时间
+        const timeoutDuration = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 1000 : 3000;
         const timeout = setTimeout(() => {
           console.log(`网络检测超时 (${timeoutDuration}ms)，设置为较差质量`);
           networkQuality.syncFailCount++;
@@ -175,17 +175,37 @@
         // 计算平均延迟
         const avgRtt = networkQuality.pingHistory.reduce((a, b) => a + b, 0) / networkQuality.pingHistory.length;
         
-        // 计算网络质量评分 (0-1) - 远程服务器评分标准
-        if (avgRtt <= 50) {
-          networkQuality.quality = 1.0; // 优秀
-        } else if (avgRtt <= 150) {
-          networkQuality.quality = 0.8; // 良好
-        } else if (avgRtt <= 300) {
-          networkQuality.quality = 0.6; // 一般
-        } else if (avgRtt <= 500) {
-          networkQuality.quality = 0.4; // 较差
+        // 计算网络质量评分 (0-1) - 针对本地服务器优化
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        
+        if (isLocalhost) {
+          // 本地服务器的评分标准
+          if (avgRtt <= 10) {
+            networkQuality.quality = 1.0; // 优秀
+          } else if (avgRtt <= 50) {
+            networkQuality.quality = 0.9; // 很好
+          } else if (avgRtt <= 100) {
+            networkQuality.quality = 0.8; // 良好
+          } else if (avgRtt <= 200) {
+            networkQuality.quality = 0.6; // 一般
+          } else if (avgRtt <= 500) {
+            networkQuality.quality = 0.4; // 较差
+          } else {
+            networkQuality.quality = 0.2; // 很差
+          }
         } else {
-          networkQuality.quality = 0.2; // 很差
+          // 远程服务器的评分标准
+          if (avgRtt <= 50) {
+            networkQuality.quality = 1.0; // 优秀
+          } else if (avgRtt <= 150) {
+            networkQuality.quality = 0.8; // 良好
+          } else if (avgRtt <= 300) {
+            networkQuality.quality = 0.6; // 一般
+          } else if (avgRtt <= 500) {
+            networkQuality.quality = 0.4; // 较差
+          } else {
+            networkQuality.quality = 0.2; // 很差
+          }
         }
         
         // 动态调整同步参数

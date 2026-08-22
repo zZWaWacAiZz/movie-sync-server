@@ -2369,6 +2369,7 @@
             // 使用CSS类来隐藏元素，避免被!important规则覆盖
             console.log('尝试隐藏元素...');
             realFullscreenChatInput.classList.add('hidden');
+            realFullscreenChatInput.style.display = 'none';
             
             // 验证设置是否生效
             setTimeout(() => {
@@ -3841,6 +3842,7 @@
               // 否则显示聊天窗口并聚焦输入框（仅当容器当前隐藏时）
               event.preventDefault(); // 阻止默认行为，避免触发视频播放/暂停
               if (fullscreenChatInput && messageInput && isHidden) {
+                fullscreenChatInput.classList.remove('hidden');
                 fullscreenChatInput.style.display = 'block'; // 修正显示方式
                 messageInput.focus();
                 console.log('键盘事件：显示聊天发送框');
