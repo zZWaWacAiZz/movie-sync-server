@@ -1,5 +1,5 @@
-// 在本地测试时连接到本地服务器
-      const socket = io('http://localhost:3000', {
+// 自动连接到当前页面所在的服务器（部署后无需修改）
+	      const socket = io(window.location.origin, {
         timeout: 20000, // 20秒连接超时
         reconnection: true, // 开启自动重连
         reconnectionAttempts: 5, // 重连尝试次数
