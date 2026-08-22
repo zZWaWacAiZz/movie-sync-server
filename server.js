@@ -948,6 +948,16 @@ io.on('connection', (socket) => {
 
 // 抖音直链代理 - 主节点
 app.use('/proxy/douyin', (req, res) => {
+  // 处理OPTIONS预检请求
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
+  }
+
   // 只处理GET请求
   if (req.method !== 'GET') {
     return res.status(405).json({ error: '只支持GET请求' });
@@ -981,16 +991,26 @@ app.use('/proxy/douyin', (req, res) => {
 	    }
 
 	    const parsedUrl = url.parse(targetUrl);
+	    
+	    // 构建请求头，转发客户端的Range头以支持视频分段加载
+	    const proxyHeaders = {
+	      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	      'Referer': 'https://www.douyin.com/',
+	      'Origin': 'https://www.douyin.com',
+	      'Accept': '*/*',
+	      'Accept-Encoding': 'identity',
+	      'Connection': 'keep-alive'
+	    };
+	    if (req.headers.range) {
+	      proxyHeaders['Range'] = req.headers.range;
+	    }
+
 	    const options = {
 	      hostname: parsedUrl.hostname,
 	      port: parsedUrl.port || 443,
 	      path: parsedUrl.path,
 	      method: 'GET',
-	      headers: {
-	        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-	        'Referer': 'https://www.douyin.com/',
-	        'Origin': 'https://www.douyin.com'
-	      }
+	      headers: proxyHeaders
 	    };
 
     const proxyReq = https.request(options, (proxyRes) => {
@@ -1002,21 +1022,21 @@ app.use('/proxy/douyin', (req, res) => {
       try {
         // 设置跨域头
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+        res.setHeader('Accept-Ranges', 'bytes');
         
-        // 转发响应头
-        Object.keys(proxyRes.headers).forEach(key => {
-          res.setHeader(key, proxyRes.headers[key]);
-        });
-
-        // 设置内容类型
-        if (proxyRes.headers['content-type']) {
-          res.setHeader('Content-Type', proxyRes.headers['content-type']);
-        }
-
         // 转发响应状态码
         res.statusCode = proxyRes.statusCode;
+        
+        // 转发响应头（在statusCode之后设置，避免冲突）
+        Object.keys(proxyRes.headers).forEach(key => {
+          if (!['access-control-allow-origin', 'access-control-allow-methods', 
+               'access-control-allow-headers', 'access-control-expose-headers'].includes(key.toLowerCase())) {
+            res.setHeader(key, proxyRes.headers[key]);
+          }
+        });
 
         // 转发响应数据
         proxyRes.pipe(res);
@@ -1053,6 +1073,16 @@ app.use('/proxy/douyin', (req, res) => {
 
 // 备用代理节点1
 app.use('/proxy/backup1', (req, res) => {
+  // 处理OPTIONS预检请求
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
+  }
+
   // 只处理GET请求
   if (req.method !== 'GET') {
     return res.status(405).json({ error: '只支持GET请求' });
@@ -1086,31 +1116,45 @@ app.use('/proxy/backup1', (req, res) => {
 	    }
 
 	    const parsedUrl = url.parse(targetUrl);
+	    
+	    const proxyHeaders = {
+	      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	      'Referer': 'https://www.douyin.com/',
+	      'Origin': 'https://www.douyin.com',
+	      'Accept': '*/*',
+	      'Accept-Encoding': 'identity',
+	      'Connection': 'keep-alive'
+	    };
+	    if (req.headers.range) {
+	      proxyHeaders['Range'] = req.headers.range;
+	    }
+
 	    const options = {
 	      hostname: parsedUrl.hostname,
 	      port: parsedUrl.port || 443,
 	      path: parsedUrl.path,
 	      method: 'GET',
-	      headers: {
-	        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-	        'Referer': 'https://www.douyin.com/',
-	        'Origin': 'https://www.douyin.com'
-	      }
+	      headers: proxyHeaders
 	    };
 
     const proxyReq = https.request(options, (proxyRes) => {
       if (res.headersSent) return;
       try {
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        Object.keys(proxyRes.headers).forEach(key => {
-          res.setHeader(key, proxyRes.headers[key]);
-        });
-        if (proxyRes.headers['content-type']) {
-          res.setHeader('Content-Type', proxyRes.headers['content-type']);
-        }
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+        res.setHeader('Accept-Ranges', 'bytes');
+        
         res.statusCode = proxyRes.statusCode;
+        
+        Object.keys(proxyRes.headers).forEach(key => {
+          if (!['access-control-allow-origin', 'access-control-allow-methods', 
+               'access-control-allow-headers', 'access-control-expose-headers'].includes(key.toLowerCase())) {
+            res.setHeader(key, proxyRes.headers[key]);
+          }
+        });
+        
         proxyRes.pipe(res);
       } catch (error) {
         console.error('备用代理1响应处理错误:', error);
@@ -1144,6 +1188,16 @@ app.use('/proxy/backup1', (req, res) => {
 
 // 备用代理节点2
 app.use('/proxy/backup2', (req, res) => {
+  // 处理OPTIONS预检请求
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+    res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+    res.setHeader('Access-Control-Max-Age', '86400');
+    return res.status(204).end();
+  }
+
   // 只处理GET请求
   if (req.method !== 'GET') {
     return res.status(405).json({ error: '只支持GET请求' });
@@ -1177,31 +1231,45 @@ app.use('/proxy/backup2', (req, res) => {
 	    }
 
 	    const parsedUrl = url.parse(targetUrl);
+	    
+	    const proxyHeaders = {
+	      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	      'Referer': 'https://www.douyin.com/',
+	      'Origin': 'https://www.douyin.com',
+	      'Accept': '*/*',
+	      'Accept-Encoding': 'identity',
+	      'Connection': 'keep-alive'
+	    };
+	    if (req.headers.range) {
+	      proxyHeaders['Range'] = req.headers.range;
+	    }
+
 	    const options = {
 	      hostname: parsedUrl.hostname,
 	      port: parsedUrl.port || 443,
 	      path: parsedUrl.path,
 	      method: 'GET',
-	      headers: {
-	        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-	        'Referer': 'https://www.douyin.com/',
-	        'Origin': 'https://www.douyin.com'
-	      }
+	      headers: proxyHeaders
 	    };
 
     const proxyReq = https.request(options, (proxyRes) => {
       if (res.headersSent) return;
       try {
         res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-        Object.keys(proxyRes.headers).forEach(key => {
-          res.setHeader(key, proxyRes.headers[key]);
-        });
-        if (proxyRes.headers['content-type']) {
-          res.setHeader('Content-Type', proxyRes.headers['content-type']);
-        }
+        res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Authorization');
+        res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+        res.setHeader('Accept-Ranges', 'bytes');
+        
         res.statusCode = proxyRes.statusCode;
+        
+        Object.keys(proxyRes.headers).forEach(key => {
+          if (!['access-control-allow-origin', 'access-control-allow-methods', 
+               'access-control-allow-headers', 'access-control-expose-headers'].includes(key.toLowerCase())) {
+            res.setHeader(key, proxyRes.headers[key]);
+          }
+        });
+        
         proxyRes.pipe(res);
       } catch (error) {
         console.error('备用代理2响应处理错误:', error);
