@@ -875,7 +875,10 @@ io.on('connection', (socket) => {
         // 检查文件扩展名或常见视频流媒体域名
         return videoExtensions.some(ext => lowerUrl.includes(ext)) ||
                lowerUrl.includes('douyinvod.com') ||
-               lowerUrl.includes('douyin.com') ||
+	               lowerUrl.includes('douyin.com') ||
+	               lowerUrl.includes('365yg.com') ||
+	               lowerUrl.includes('snssdk.com') ||
+	               lowerUrl.includes('ibytedtos.com') ||
                lowerUrl.includes('youtube.com') ||
                lowerUrl.includes('vimeo.com') ||
                lowerUrl.includes('bilibili.com') ||
@@ -956,36 +959,39 @@ app.use('/proxy/douyin', (req, res) => {
     return res.status(400).json({ error: '缺少URL参数' });
   }
 
-  // 验证是否为抖音域名
-  const douyinDomains = [
-    'douyinvod.com',
-    'douyin.com',
-    'v.douyin.com',
-    'www.douyin.com',
-    'v3-web-prime.douyinvod.com',
-    'v1-cold.douyinvod.com',
-    'v9-cold.douyinvod.com'
-  ];
-  
-  try {
-    const lowerUrl = targetUrl.toLowerCase();
-    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
-    if (!isValidDouyinUrl) {
-      return res.status(403).json({ error: '只允许代理抖音相关域名' });
-    }
+  // 验证是否为抖音域名（含CDN域名）
+	  const douyinDomains = [
+	    'douyinvod.com',
+	    'douyin.com',
+	    'v.douyin.com',
+	    'www.douyin.com',
+	    'v3-web-prime.douyinvod.com',
+	    'v1-cold.douyinvod.com',
+	    'v9-cold.douyinvod.com',
+	    '365yg.com',
+	    'snssdk.com',
+	    'ibytedtos.com'
+	  ];
+	  
+	  try {
+	    const lowerUrl = targetUrl.toLowerCase();
+	    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
+	    if (!isValidDouyinUrl) {
+	      return res.status(403).json({ error: '只允许代理抖音相关域名' });
+	    }
 
-    const parsedUrl = url.parse(targetUrl);
-    const options = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || 443,
-      path: parsedUrl.path,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Referer': 'https://www.douyin.com/',
-        'Origin': 'https://www.douyin.com'
-      }
-    };
+	    const parsedUrl = url.parse(targetUrl);
+	    const options = {
+	      hostname: parsedUrl.hostname,
+	      port: parsedUrl.port || 443,
+	      path: parsedUrl.path,
+	      method: 'GET',
+	      headers: {
+	        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	        'Referer': 'https://www.douyin.com/',
+	        'Origin': 'https://www.douyin.com'
+	      }
+	    };
 
     const proxyReq = https.request(options, (proxyRes) => {
       // 检查响应是否已经结束
@@ -1058,36 +1064,39 @@ app.use('/proxy/backup1', (req, res) => {
     return res.status(400).json({ error: '缺少URL参数' });
   }
 
-  // 验证是否为抖音域名
-  const douyinDomains = [
-    'douyinvod.com',
-    'douyin.com',
-    'v.douyin.com',
-    'www.douyin.com',
-    'v3-web-prime.douyinvod.com',
-    'v1-cold.douyinvod.com',
-    'v9-cold.douyinvod.com'
-  ];
-  
-  try {
-    const lowerUrl = targetUrl.toLowerCase();
-    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
-    if (!isValidDouyinUrl) {
-      return res.status(403).json({ error: '只允许代理抖音相关域名' });
-    }
+  // 验证是否为抖音域名（含CDN域名）
+	  const douyinDomains = [
+	    'douyinvod.com',
+	    'douyin.com',
+	    'v.douyin.com',
+	    'www.douyin.com',
+	    'v3-web-prime.douyinvod.com',
+	    'v1-cold.douyinvod.com',
+	    'v9-cold.douyinvod.com',
+	    '365yg.com',
+	    'snssdk.com',
+	    'ibytedtos.com'
+	  ];
+	  
+	  try {
+	    const lowerUrl = targetUrl.toLowerCase();
+	    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
+	    if (!isValidDouyinUrl) {
+	      return res.status(403).json({ error: '只允许代理抖音相关域名' });
+	    }
 
-    const parsedUrl = url.parse(targetUrl);
-    const options = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || 443,
-      path: parsedUrl.path,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Referer': 'https://www.douyin.com/',
-        'Origin': 'https://www.douyin.com'
-      }
-    };
+	    const parsedUrl = url.parse(targetUrl);
+	    const options = {
+	      hostname: parsedUrl.hostname,
+	      port: parsedUrl.port || 443,
+	      path: parsedUrl.path,
+	      method: 'GET',
+	      headers: {
+	        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	        'Referer': 'https://www.douyin.com/',
+	        'Origin': 'https://www.douyin.com'
+	      }
+	    };
 
     const proxyReq = https.request(options, (proxyRes) => {
       if (res.headersSent) return;
@@ -1146,36 +1155,39 @@ app.use('/proxy/backup2', (req, res) => {
     return res.status(400).json({ error: '缺少URL参数' });
   }
 
-  // 验证是否为抖音域名
-  const douyinDomains = [
-    'douyinvod.com',
-    'douyin.com',
-    'v.douyin.com',
-    'www.douyin.com',
-    'v3-web-prime.douyinvod.com',
-    'v1-cold.douyinvod.com',
-    'v9-cold.douyinvod.com'
-  ];
-  
-  try {
-    const lowerUrl = targetUrl.toLowerCase();
-    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
-    if (!isValidDouyinUrl) {
-      return res.status(403).json({ error: '只允许代理抖音相关域名' });
-    }
+  // 验证是否为抖音域名（含CDN域名）
+	  const douyinDomains = [
+	    'douyinvod.com',
+	    'douyin.com',
+	    'v.douyin.com',
+	    'www.douyin.com',
+	    'v3-web-prime.douyinvod.com',
+	    'v1-cold.douyinvod.com',
+	    'v9-cold.douyinvod.com',
+	    '365yg.com',
+	    'snssdk.com',
+	    'ibytedtos.com'
+	  ];
+	  
+	  try {
+	    const lowerUrl = targetUrl.toLowerCase();
+	    const isValidDouyinUrl = douyinDomains.some(domain => lowerUrl.includes(domain));
+	    if (!isValidDouyinUrl) {
+	      return res.status(403).json({ error: '只允许代理抖音相关域名' });
+	    }
 
-    const parsedUrl = url.parse(targetUrl);
-    const options = {
-      hostname: parsedUrl.hostname,
-      port: parsedUrl.port || 443,
-      path: parsedUrl.path,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'Referer': 'https://www.douyin.com/',
-        'Origin': 'https://www.douyin.com'
-      }
-    };
+	    const parsedUrl = url.parse(targetUrl);
+	    const options = {
+	      hostname: parsedUrl.hostname,
+	      port: parsedUrl.port || 443,
+	      path: parsedUrl.path,
+	      method: 'GET',
+	      headers: {
+	        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	        'Referer': 'https://www.douyin.com/',
+	        'Origin': 'https://www.douyin.com'
+	      }
+	    };
 
     const proxyReq = https.request(options, (proxyRes) => {
       if (res.headersSent) return;

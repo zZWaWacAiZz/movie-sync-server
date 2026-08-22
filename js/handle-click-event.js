@@ -1175,7 +1175,10 @@
         'www.douyin.com',
         'v3-web-prime.douyinvod.com',
         'v1-cold.douyinvod.com',
-        'v9-cold.douyinvod.com'
+        'v9-cold.douyinvod.com',
+        '365yg.com',
+        'snssdk.com',
+        'ibytedtos.com'
       ];
       
       const lowerUrl = url.toLowerCase();
